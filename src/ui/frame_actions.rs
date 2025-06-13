@@ -104,8 +104,9 @@ impl eframe::App for FractalApp {
                             ui.label("Iterations:");
                             if ui
                                 .add(
-                                    egui::Slider::new(&mut self.max_iterations, 10..=2000)
-                                        .logarithmic(true),
+                                    egui::Slider::new(&mut self.max_iterations, 10..=10000)
+                                        .step_by(50.0)
+                                        .suffix(" iters"),
                                 )
                                 .changed()
                             {
@@ -211,10 +212,7 @@ impl eframe::App for FractalApp {
                         ui.monospace(format!("X: {:.6}", self.center.x));
                         ui.monospace(format!("Y: {:.6}", self.center.y));
                         ui.monospace(format!("Zoom: {:.2e}", self.zoom));
-                        ui.monospace(format!(
-                            "Fractal: {}",
-                            self.fractal_type.name()
-                        ));
+                        ui.monospace(format!("Fractal: {}", self.fractal_type.name()));
                         ui.monospace(format!(
                             "Resolution: {}",
                             format!("{}x{}", self.image_size.0, self.image_size.1)
@@ -237,7 +235,10 @@ impl eframe::App for FractalApp {
         // Main fractal display area
         egui::CentralPanel::default().show(ctx, |ui| {
             let available_size = ui.available_size();
-            self.image_size = ((available_size.x as usize).try_into().unwrap(), available_size.y  as u32);
+            self.image_size = (
+                (available_size.x as usize).try_into().unwrap(),
+                available_size.y as u32,
+            );
 
             if self.needs_update && self.image_size.0 > 0 && self.image_size.1 > 0 {
                 let image = self.generate_fractal_image();
