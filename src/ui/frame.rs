@@ -1,9 +1,9 @@
-use crate::color_scheme::ColorScheme;
-use crate::fractal_app::FractalApp;
-use crate::fractals::FractalType;
+use crate::enums::fractal_type::FractalType;
+use crate::structs::color_scheme::ColorScheme;
+use crate::structs::fractal_app::FractalApp;
+use crate::structs::point::Point;
 use eframe::emath::{Pos2, Rect, Vec2};
 use eframe::epaint::Color32;
-use crate::point::Point;
 
 impl eframe::App for FractalApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {

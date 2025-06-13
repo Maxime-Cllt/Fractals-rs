@@ -1,4 +1,4 @@
-use crate::point::Point;
+use crate::structs::point::Point;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum FractalType {

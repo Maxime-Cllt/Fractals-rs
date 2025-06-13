@@ -1,21 +1,9 @@
-use crate::color_scheme::ColorScheme;
-use crate::fractals::FractalType;
-use crate::point::Point;
-use egui::{Color32, Vec2};
 
-pub struct FractalApp {
-    pub fractal_type: FractalType,
-    pub max_iterations: u16,
-    pub center: Point,
-    pub zoom: f64,
-    pub julia_c: Point,
-    pub needs_update: bool,
-    pub texture: Option<egui::TextureHandle>,
-    pub image_size: (usize, usize),
-    pub is_dragging: bool,
-    pub show_settings: bool,
-    pub color_scheme: ColorScheme,
-}
+use crate::structs::color_scheme::ColorScheme;
+use crate::structs::fractal_app::FractalApp;
+use egui::{Color32, Vec2};
+use crate::enums::fractal_type::FractalType;
+use crate::structs::point::Point;
 
 impl Default for FractalApp {
     fn default() -> Self {
@@ -36,7 +24,7 @@ impl Default for FractalApp {
 }
 
 impl FractalApp {
-    pub(crate) fn generate_fractal_image(&self) -> egui::ColorImage {
+    pub fn generate_fractal_image(&self) -> egui::ColorImage {
         let width: usize = self.image_size.0;
         let height: usize = self.image_size.1;
 
@@ -143,7 +131,7 @@ impl FractalApp {
         (x_scale, y_scale, x_min, y_min)
     }
 
-    pub(crate) fn handle_mouse_input(&mut self, response: &egui::Response, image_rect: egui::Rect) {
+    pub fn handle_mouse_input(&mut self, response: &egui::Response, image_rect: egui::Rect) {
         // Handle zoom with scroll wheel
         if response.hovered() {
             let scroll_delta = response.ctx.input(|i| i.smooth_scroll_delta.y);

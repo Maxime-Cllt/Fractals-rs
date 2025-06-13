@@ -1,13 +1,6 @@
-use crate::constant::{HEIGHT, WIDTH};
-use crate::fractal_app::FractalApp;
 use eframe::egui;
-
-mod constant;
-mod fractal_app;
-mod frame;
-mod fractals;
-mod color_scheme;
-mod point;
+use fractals_rs::constant::{HEIGHT, WIDTH};
+use fractals_rs::structs::fractal_app::FractalApp;
 
 fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
