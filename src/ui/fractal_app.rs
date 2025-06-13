@@ -24,8 +24,8 @@ impl Default for FractalApp {
 
 impl FractalApp {
     pub fn generate_fractal_image(&self) -> egui::ColorImage {
-        let width: usize = self.image_size.0;
-        let height: usize = self.image_size.1;
+        let width: usize = self.image_size.0 as usize;
+        let height: usize = self.image_size.1 as usize;
 
         if width == 0 || height == 0 {
             return egui::ColorImage::new([1, 1], Color32::BLACK);
@@ -35,11 +35,6 @@ impl FractalApp {
 
         let (x_scale, y_scale, x_min, y_min) = self.compute_scale();
 
-        // Generate fractal in parallel for better performance
-        use std::sync::{Arc, Mutex};
-        Arc::new(Mutex::new(&mut pixels));
-
-        // Simple parallel processing - you might want to use rayon for better performance
         for y in 0..height {
             for x in 0..width {
                 let cx = x_min + x as f64 * x_scale;
@@ -65,10 +60,10 @@ impl FractalApp {
                 .collect::<Vec<u8>>(),
         )
     }
-
+    
     fn compute_scale(&self) -> (f64, f64, f64, f64) {
-        let width: usize = self.image_size.0;
-        let height: usize = self.image_size.1;
+        let width: u32 = self.image_size.0;
+        let height: u32 = self.image_size.1;
 
         let aspect_ratio: f64 = width as f64 / height as f64;
         let zoom_factor: f64 = 2.0 / self.zoom;

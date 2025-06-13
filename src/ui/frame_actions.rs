@@ -89,7 +89,6 @@ impl eframe::App for FractalApp {
             });
         });
 
-        // Left side panel for settings
         if self.show_settings {
             egui::SidePanel::left("settings_panel")
                 .resizable(true)
@@ -105,7 +104,7 @@ impl eframe::App for FractalApp {
                             ui.label("Iterations:");
                             if ui
                                 .add(
-                                    egui::Slider::new(&mut self.max_iterations, 10..=1200)
+                                    egui::Slider::new(&mut self.max_iterations, 10..=2000)
                                         .logarithmic(true),
                                 )
                                 .changed()
@@ -114,7 +113,36 @@ impl eframe::App for FractalApp {
                             }
                         });
 
-                        // Julia set specific controls
+                        ui.horizontal(|ui| {
+                            ui.label("Width:");
+                            if ui
+                                .add(
+                                    egui::DragValue::new(&mut self.image_size.0)
+                                        .range(100..=1920)
+                                        .suffix(" px")
+                                        .speed(1.0),
+                                )
+                                .changed()
+                            {
+                                self.needs_update = true;
+                            }
+                        });
+
+                        ui.horizontal(|ui| {
+                            ui.label("Height:");
+                            if ui
+                                .add(
+                                    egui::DragValue::new(&mut self.image_size.1)
+                                        .range(100..=1920)
+                                        .suffix(" px")
+                                        .speed(1.0),
+                                )
+                                .changed()
+                            {
+                                self.needs_update = true;
+                            }
+                        });
+
                         if self.fractal_type == FractalType::Julia {
                             ui.separator();
                             ui.label("Julia Constant (c):");
@@ -147,7 +175,6 @@ impl eframe::App for FractalApp {
                                 }
                             });
 
-                            // Preset Julia constants
                             ui.separator();
                             ui.label("Presets:");
                             ui.horizontal_wrapped(|ui| {
@@ -184,6 +211,14 @@ impl eframe::App for FractalApp {
                         ui.monospace(format!("X: {:.6}", self.center.x));
                         ui.monospace(format!("Y: {:.6}", self.center.y));
                         ui.monospace(format!("Zoom: {:.2e}", self.zoom));
+                        ui.monospace(format!(
+                            "Fractal: {}",
+                            self.fractal_type.name()
+                        ));
+                        ui.monospace(format!(
+                            "Resolution: {}",
+                            format!("{}x{}", self.image_size.0, self.image_size.1)
+                        ));
                     });
 
                     ui.add_space(10.0);
@@ -202,7 +237,7 @@ impl eframe::App for FractalApp {
         // Main fractal display area
         egui::CentralPanel::default().show(ctx, |ui| {
             let available_size = ui.available_size();
-            self.image_size = (available_size.x as usize, available_size.y as usize);
+            self.image_size = ((available_size.x as usize).try_into().unwrap(), available_size.y  as u32);
 
             if self.needs_update && self.image_size.0 > 0 && self.image_size.1 > 0 {
                 let image = self.generate_fractal_image();
@@ -255,18 +290,6 @@ impl eframe::App for FractalApp {
                 });
             }
         });
-
-        // Show a subtle help overlay for first-time users
-        if !self.show_settings {
-            egui::Window::new("💡 Quick Tip")
-                .anchor(egui::Align2::RIGHT_BOTTOM, Vec2::new(-10.0, -10.0))
-                .collapsible(false)
-                .resizable(false)
-                .show(ctx, |ui| {
-                    ui.small("Press 'Settings' in the menu to show controls");
-                    ui.small("or right-click on the fractal for options");
-                });
-        }
 
         if self.is_dragging {
             ctx.request_repaint();

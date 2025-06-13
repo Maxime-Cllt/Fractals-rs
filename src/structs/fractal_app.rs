@@ -10,7 +10,7 @@ pub struct FractalApp {
     pub julia_c: Point,
     pub needs_update: bool,
     pub texture: Option<egui::TextureHandle>,
-    pub image_size: (usize, usize),
+    pub image_size: (u32, u32),
     pub is_dragging: bool,
     pub show_settings: bool,
     pub color_scheme: ColorScheme,
