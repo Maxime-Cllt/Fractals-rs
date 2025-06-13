@@ -1,9 +1,14 @@
-# Fractal Explorer 🌀
+<div align="center">
+    <h1>Fractal Explorer</h1>
+</div>
+
+<div align="center">
+    <img src="https://img.shields.io/badge/Rust-dea584?style=for-the-badge&logo=rust&logoColor=white" alt="Rust" />
+    <img src="https://img.shields.io/badge/Version-0.0.1-informational?style=for-the-badge" alt="Version" />
+</div>
 
 A high-performance fractal renderer built in Rust with an interactive GUI for exploring the beautiful world of
 mathematical fractals including the Mandelbrot set, Julia sets, and more.
-
-![Fractal Explorer Demo](demo.gif)
 
 ## Features
 

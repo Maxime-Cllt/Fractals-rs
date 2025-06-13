@@ -1,9 +1,8 @@
-
+use crate::enums::fractal_type::FractalType;
 use crate::structs::color_scheme::ColorScheme;
 use crate::structs::fractal_app::FractalApp;
-use egui::{Color32, Vec2};
-use crate::enums::fractal_type::FractalType;
 use crate::structs::point::Point;
+use egui::{Color32, Vec2};
 
 impl Default for FractalApp {
     fn default() -> Self {
@@ -18,7 +17,7 @@ impl Default for FractalApp {
             image_size: (800, 600),
             is_dragging: false,
             show_settings: false,
-            color_scheme: ColorScheme::Classic,
+            color_scheme: ColorScheme::default(),
         }
     }
 }
@@ -49,7 +48,9 @@ impl FractalApp {
                 let iterations =
                     self.fractal_type
                         .iterations(cx, cy, self.max_iterations, &self.julia_c);
-                let color = self.iterations_to_color(iterations);
+                let color = self
+                    .color_scheme
+                    .to_color32(iterations, self.max_iterations);
 
                 let index = y * width + x;
                 pixels[index] = color;
@@ -63,55 +64,6 @@ impl FractalApp {
                 .flat_map(|c| [c.r(), c.g(), c.b(), c.a()])
                 .collect::<Vec<u8>>(),
         )
-    }
-
-    fn iterations_to_color(&self, iterations: u16) -> Color32 {
-        if iterations >= 1000 {
-            return Color32::BLACK;
-        }
-
-        let t = iterations as f32 / self.max_iterations as f32;
-        let smoothed = t.powf(0.5); // Smooth the color transition
-
-        match self.color_scheme {
-            ColorScheme::Classic => {
-                // Classic blue-to-red gradient
-                let r = (255.0 * (smoothed * 3.0).min(1.0)) as u8;
-                let g = (255.0 * ((smoothed - 0.33) * 3.0).max(0.0).min(1.0)) as u8;
-                let b = (255.0 * ((smoothed - 0.66) * 3.0).max(0.0).min(1.0)) as u8;
-                Color32::from_rgb(r, g, b)
-            }
-            ColorScheme::Hot => {
-                // Hot colors: black -> red -> yellow -> white
-                if smoothed < 0.33 {
-                    let t = smoothed * 3.0;
-                    Color32::from_rgb((255.0 * t) as u8, 0, 0)
-                } else if smoothed < 0.66 {
-                    let t = (smoothed - 0.33) * 3.0;
-                    Color32::from_rgb(255, (255.0 * t) as u8, 0)
-                } else {
-                    let t = (smoothed - 0.66) * 3.0;
-                    Color32::from_rgb(255, 255, (255.0 * t) as u8)
-                }
-            }
-            ColorScheme::Cool => {
-                // Cool colors: black -> blue -> cyan -> white
-                if smoothed < 0.33 {
-                    let t = smoothed * 3.0;
-                    Color32::from_rgb(0, 0, (255.0 * t) as u8)
-                } else if smoothed < 0.66 {
-                    let t = (smoothed - 0.33) * 3.0;
-                    Color32::from_rgb(0, (255.0 * t) as u8, 255)
-                } else {
-                    let t = (smoothed - 0.66) * 3.0;
-                    Color32::from_rgb((255.0 * t) as u8, 255, 255)
-                }
-            }
-            ColorScheme::Grayscale => {
-                let gray = (255.0 * smoothed) as u8;
-                Color32::from_rgb(gray, gray, gray)
-            }
-        }
     }
 
     fn compute_scale(&self) -> (f64, f64, f64, f64) {
