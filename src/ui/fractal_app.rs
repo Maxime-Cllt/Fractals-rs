@@ -3,12 +3,13 @@ use crate::structs::color_scheme::ColorScheme;
 use crate::structs::fractal_app::FractalApp;
 use crate::structs::point::Point;
 use egui::{Color32, Vec2};
+use rayon::prelude::*;
 
 impl Default for FractalApp {
     fn default() -> Self {
         Self {
             fractal_type: FractalType::Mandelbrot,
-            max_iterations: 100,
+            max_iterations: 300,
             center: Point::new(-0.5, 0.0),
             zoom: 1.0,
             julia_c: Point::new(-0.7269, 0.1889),
@@ -31,26 +32,24 @@ impl FractalApp {
             return egui::ColorImage::new([1, 1], Color32::BLACK);
         }
 
-        let mut pixels: Vec<Color32> = vec![Color32::BLACK; width * height];
-
         let (x_scale, y_scale, x_min, y_min) = self.compute_scale();
 
-        for y in 0..height {
-            for x in 0..width {
-                let cx = x_min + x as f64 * x_scale;
-                let cy = y_min + y as f64 * y_scale;
+        let pixels: Vec<Color32> = (0..height)
+            .into_par_iter()
+            .flat_map(|y| {
+                (0..width).into_par_iter().map(move |x| {
+                    let cx = x_min + x as f64 * x_scale;
+                    let cy = y_min + y as f64 * y_scale;
 
-                let iterations =
-                    self.fractal_type
-                        .iterations(cx, cy, self.max_iterations, &self.julia_c);
-                let color = self
-                    .color_scheme
-                    .to_color32(iterations, self.max_iterations);
+                    let iterations =
+                        self.fractal_type
+                            .iterations(cx, cy, self.max_iterations, &self.julia_c);
 
-                let index = y * width + x;
-                pixels[index] = color;
-            }
-        }
+                    self.color_scheme
+                        .to_color32(iterations, self.max_iterations)
+                })
+            })
+            .collect();
 
         egui::ColorImage::from_rgba_unmultiplied(
             [width, height],
@@ -60,7 +59,7 @@ impl FractalApp {
                 .collect::<Vec<u8>>(),
         )
     }
-    
+
     fn compute_scale(&self) -> (f64, f64, f64, f64) {
         let width: u32 = self.image_size.0;
         let height: u32 = self.image_size.1;

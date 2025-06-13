@@ -20,37 +20,56 @@ impl FractalType {
     }
 
     /// Computes the number of iterations for the Mandelbrot set at the given complex coordinate.
-    const fn mandelbrot_iterations(cx: f64, cy: f64, max_iteration: u16) -> u16 {
-        let mut x: f64 = 0.0;
-        let mut y: f64 = 0.0;
+    #[inline]
+    fn mandelbrot_iterations(cx: f64, cy: f64, max_iteration: u16) -> u16 {
+        let mut zr: f64 = 0.0; // Real part
+        let mut zi: f64 = 0.0; // Imaginary part
         let mut iterations: u16 = 0;
 
-        while x * x + y * y <= 4.0 && iterations < max_iteration {
-            let temp = x * x - y * y + cx;
-            y = 2.0 * x * y + cy;
-            x = temp;
+        while iterations < max_iteration {
+            let zr2: f64 = zr * zr;
+            let zi2: f64 = zi * zi;
+
+            if zr2 + zi2 > 4.0 {
+                break;
+            }
+
+            // z = z² + c
+            let new_zr: f64 = zr2 - zi2 + cx;
+            zi = 2.0 * zr * zi + cy;
+            zr = new_zr;
+
             iterations += 1;
         }
+
         iterations
     }
 
-    /// Julia set iterations
-    const fn julia_iterations(zx: f64, zy: f64, max_iteration: u16, c: &Point) -> u16 {
+    /// Computes the number of iterations for the Julia set at the given complex coordinate.
+    #[inline]
+    fn julia_iterations(zx: f64, zy: f64, max_iteration: u16, c: &Point) -> u16 {
         let mut x: f64 = zx;
         let mut y: f64 = zy;
+        let mut x2: f64 = x * x;
+        let mut y2: f64 = y * y;
         let mut iterations: u16 = 0;
+        let cx:f64 = c.x;
+        let cy:f64 = c.y;
 
-        while x * x + y * y <= 4.0 && iterations < max_iteration {
-            let temp: f64 = x * x - y * y + c.x;
-            y = 2.0 * x * y + c.y;
-            x = temp;
+        while iterations < max_iteration && x2 + y2 <= 4.0 {
+            y = 2.0 * x * y + cy;
+            x = x2 - y2 + cx;
+
+            x2 = x * x;
+            y2 = y * y;
             iterations += 1;
         }
         iterations
     }
 
     /// Burning Ship fractal iterations
-    const fn burning_ship_iterations(cx: f64, cy: f64, max_iteration: u16) -> u16 {
+    #[inline]
+    fn burning_ship_iterations(cx: f64, cy: f64, max_iteration: u16) -> u16 {
         let mut x: f64 = 0.0;
         let mut y: f64 = 0.0;
         let mut iterations: u16 = 0;
@@ -65,7 +84,8 @@ impl FractalType {
     }
 
     /// Tricorn fractal iterations
-    const fn tricorn_iterations(cx: f64, cy: f64, max_iteration: u16) -> u16 {
+    #[inline]
+    fn tricorn_iterations(cx: f64, cy: f64, max_iteration: u16) -> u16 {
         let mut x: f64 = 0.0;
         let mut y: f64 = 0.0;
         let mut iterations: u16 = 0;
