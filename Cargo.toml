@@ -2,10 +2,42 @@
 name = "Fractals-rs"
 version = "0.1.0"
 edition = "2024"
+description = "A simple fractal viewer written in Rust using eframe and egui"
+authors = ["Maxime-Cllt"]
 
 [dependencies]
-pixels = "0.13"
-winit = "0.28"
-winit_input_helper = "0.14"
-env_logger = "0.10"
-log = "0.4"
+eframe = "0.31.1"
+egui = "0.31.1"
+
+[dev-dependencies]
+criterion = "0.6.0"
+
+
+[profile.dev]
+# Development profile for debug builds
+opt-level = 0  # No optimizations, better debugging info
+debug = true  # Generate debug info
+overflow-checks = true  # Enable overflow checks for safer code
+codegen-units = 20  # Use multiple codegen units for faster compilation
+lto = false  # Disable Link Time Optimization for faster compilation
+panic = "unwind" # Use unwind strategy to get better backtraces
+
+[profile.test]
+# Test profile for optimized builds
+incremental = true  # Enable incremental compilation for faster test builds
+opt-level = 1  # Optimize for speed, but not as much as release
+debug = false  # No debug info in test builds
+overflow-checks = true  # Enable overflow checks for safer code
+codegen-units = 1  # Merge codegen units for better optimization
+lto = false  # Disable Link Time Optimization for faster compilation
+
+[profile.release]
+# Release profile for optimized builds
+incremental = false
+opt-level = 3  # Optimize for speed
+debug = false  # No debug info in release builds
+lto = "fat"    # Better than just `true` for performance
+codegen-units = 1  # Merge codegen units for better optimization (can increase compile time)
+overflow-checks = false  # Disable overflow checks for performance
+panic = "abort" # Use unwind strategy to get better backtraces.
+strip = "symbols"     # Strip debug symbols to reduce binary size
