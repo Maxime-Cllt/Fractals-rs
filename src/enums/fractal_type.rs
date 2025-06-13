@@ -1,6 +1,6 @@
 use crate::structs::point::Point;
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum FractalType {
     Mandelbrot,
     Julia,
@@ -95,5 +95,34 @@ impl FractalType {
             FractalType::BurningShip => Point::new(-0.5, -0.5),
             FractalType::Tricorn => Point::new(0.0, 0.0),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_mandelbrot_iterations() {
+        let iterations = FractalType::Mandelbrot.iterations(0.0, 0.0, 1000, &Point::new(0.0, 0.0));
+        assert!(iterations > 0);
+    }
+
+    #[test]
+    fn test_julia_iterations() {
+        let iterations = FractalType::Julia.iterations(0.0, 0.0, 1000, &Point::new(0.355, 0.355));
+        assert!(iterations > 0);
+    }
+
+    #[test]
+    fn test_burning_ship_iterations() {
+        let iterations = FractalType::BurningShip.iterations(0.0, 0.0, 1000, &Point::new(0.0, 0.0));
+        assert!(iterations > 0);
+    }
+
+    #[test]
+    fn test_tricorn_iterations() {
+        let iterations = FractalType::Tricorn.iterations(0.0, 0.0, 1000, &Point::new(0.0, 0.0));
+        assert!(iterations > 0);
     }
 }

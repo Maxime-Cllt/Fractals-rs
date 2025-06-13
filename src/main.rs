@@ -2,6 +2,9 @@ use eframe::egui;
 use fractals_rs::constant::{HEIGHT, WIDTH};
 use fractals_rs::structs::fractal_app::FractalApp;
 
+#[cfg(test)]
+mod benches;
+
 fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default().with_inner_size([WIDTH, HEIGHT]),
