@@ -12,26 +12,45 @@ pub enum FractalType {
 
 impl FractalType {
     /// Returns the number of iterations with specified precision mode
-    pub fn iterations(&self, cx: f64, cy: f64, max_iteration: u16, julia_c: &Point, precision: PrecisionMode) -> u16 {
+    pub fn iterations(
+        &self,
+        cx: f64,
+        cy: f64,
+        max_iteration: u16,
+        julia_c: &Point,
+        precision: PrecisionMode,
+    ) -> u16 {
         match precision {
             PrecisionMode::Fast => {
                 let cx_f32 = cx as f32;
                 let cy_f32 = cy as f32;
                 match self {
-                    FractalType::Mandelbrot => Self::mandelbrot_iterations_generic(cx_f32, cy_f32, max_iteration),
-                    FractalType::Julia => Self::julia_iterations_generic(cx_f32, cy_f32, max_iteration, julia_c),
-                    FractalType::BurningShip => Self::burning_ship_iterations_generic(cx_f32, cy_f32, max_iteration),
-                    FractalType::Tricorn => Self::tricorn_iterations_generic(cx_f32, cy_f32, max_iteration),
+                    FractalType::Mandelbrot => {
+                        Self::mandelbrot_iterations_generic(cx_f32, cy_f32, max_iteration)
+                    }
+                    FractalType::Julia => {
+                        Self::julia_iterations_generic(cx_f32, cy_f32, max_iteration, julia_c)
+                    }
+                    FractalType::BurningShip => {
+                        Self::burning_ship_iterations_generic(cx_f32, cy_f32, max_iteration)
+                    }
+                    FractalType::Tricorn => {
+                        Self::tricorn_iterations_generic(cx_f32, cy_f32, max_iteration)
+                    }
                 }
             }
-            PrecisionMode::High => {
-                match self {
-                    FractalType::Mandelbrot => Self::mandelbrot_iterations_generic(cx, cy, max_iteration),
-                    FractalType::Julia => Self::julia_iterations_generic(cx, cy, max_iteration, julia_c),
-                    FractalType::BurningShip => Self::burning_ship_iterations_generic(cx, cy, max_iteration),
-                    FractalType::Tricorn => Self::tricorn_iterations_generic(cx, cy, max_iteration),
+            PrecisionMode::High => match self {
+                FractalType::Mandelbrot => {
+                    Self::mandelbrot_iterations_generic(cx, cy, max_iteration)
                 }
-            }
+                FractalType::Julia => {
+                    Self::julia_iterations_generic(cx, cy, max_iteration, julia_c)
+                }
+                FractalType::BurningShip => {
+                    Self::burning_ship_iterations_generic(cx, cy, max_iteration)
+                }
+                FractalType::Tricorn => Self::tricorn_iterations_generic(cx, cy, max_iteration),
+            },
         }
     }
 
@@ -61,7 +80,12 @@ impl FractalType {
     }
 
     #[inline]
-    fn julia_iterations_generic<T: FractalFloat>(zx: T, zy: T, max_iteration: u16, c: &Point) -> u16 {
+    fn julia_iterations_generic<T: FractalFloat>(
+        zx: T,
+        zy: T,
+        max_iteration: u16,
+        c: &Point,
+    ) -> u16 {
         let mut x = zx;
         let mut y = zy;
         let mut iterations = 0u16;
@@ -154,25 +178,49 @@ mod tests {
 
     #[test]
     fn test_mandelbrot_iterations() {
-        let iterations = FractalType::Mandelbrot.iterations(0.0, 0.0, 1000, &Point::new(0.0, 0.0), PrecisionMode::Fast);
+        let iterations = FractalType::Mandelbrot.iterations(
+            0.0,
+            0.0,
+            1000,
+            &Point::new(0.0, 0.0),
+            PrecisionMode::Fast,
+        );
         assert!(iterations > 0);
     }
 
     #[test]
     fn test_julia_iterations() {
-        let iterations = FractalType::Julia.iterations(0.0, 0.0, 1000, &Point::new(0.355, 0.355), PrecisionMode::Fast);
+        let iterations = FractalType::Julia.iterations(
+            0.0,
+            0.0,
+            1000,
+            &Point::new(0.355, 0.355),
+            PrecisionMode::Fast,
+        );
         assert!(iterations > 0);
     }
 
     #[test]
     fn test_burning_ship_iterations() {
-        let iterations = FractalType::BurningShip.iterations(0.0, 0.0, 1000, &Point::new(0.0, 0.0), PrecisionMode::Fast);
+        let iterations = FractalType::BurningShip.iterations(
+            0.0,
+            0.0,
+            1000,
+            &Point::new(0.0, 0.0),
+            PrecisionMode::Fast,
+        );
         assert!(iterations > 0);
     }
 
     #[test]
     fn test_tricorn_iterations() {
-        let iterations = FractalType::Tricorn.iterations(0.0, 0.0, 1000, &Point::new(0.0, 0.0), PrecisionMode::Fast);
+        let iterations = FractalType::Tricorn.iterations(
+            0.0,
+            0.0,
+            1000,
+            &Point::new(0.0, 0.0),
+            PrecisionMode::Fast,
+        );
         assert!(iterations > 0);
     }
 }

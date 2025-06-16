@@ -37,7 +37,7 @@ impl eframe::App for FractalApp {
                     }
                 });
 
-                ui.menu_button("View", |ui| {
+                ui.menu_button("Color", |ui| {
                     if ui.button("Reset View").clicked() {
                         self.center = self.fractal_type.default_center();
                         self.zoom = 1.0;
@@ -47,25 +47,7 @@ impl eframe::App for FractalApp {
 
                     ui.separator();
 
-                    for color_scheme in [
-                        ColorScheme::Classic,
-                        ColorScheme::Hot,
-                        ColorScheme::Cool,
-                        ColorScheme::Grayscale,
-                        ColorScheme::Psychedelic,
-                        ColorScheme::Sunset,
-                        ColorScheme::Electric,
-                        ColorScheme::Forest,
-                        ColorScheme::Galaxy,
-                        ColorScheme::UltraSmooth,
-                        ColorScheme::DeepOcean,
-                        ColorScheme::PrismaticFire,
-                        ColorScheme::AuroralDream,
-                        ColorScheme::CosmicNebula,
-                        ColorScheme::RainbowSmooth,
-                        ColorScheme::VelvetShadow,
-                        ColorScheme::GoldenHour,
-                    ] {
+                    for color_scheme in ColorScheme::all() {
                         if ui
                             .selectable_label(
                                 self.color_scheme == color_scheme,

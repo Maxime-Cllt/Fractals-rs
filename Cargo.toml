@@ -42,6 +42,8 @@ codegen-units = 1
 overflow-checks = false
 panic = "abort"
 strip = "symbols"
+rpath = false
+debug-assertions = false
 
 
 [[bench]]

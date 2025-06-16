@@ -27,6 +27,7 @@ mathematical fractals including the Mandelbrot set, Julia sets, and more.
     - Real-time parameter adjustment
     - Color palette customization
 - **High Performance**: Multi-threaded rendering
+- **Precision Control**: Adjustable precision between float64 and float32
 
 ## 💻 Platform Support
 
