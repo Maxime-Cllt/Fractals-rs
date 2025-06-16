@@ -55,6 +55,14 @@ impl eframe::App for FractalApp {
                         ColorScheme::Electric,
                         ColorScheme::Forest,
                         ColorScheme::Galaxy,
+                        ColorScheme::UltraSmooth,
+                        ColorScheme::DeepOcean,
+                        ColorScheme::PrismaticFire,
+                        ColorScheme::AuroralDream,
+                        ColorScheme::CosmicNebula,
+                        ColorScheme::RainbowSmooth,
+                        ColorScheme::VelvetShadow,
+                        ColorScheme::GoldenHour,
                     ] {
                         if ui
                             .selectable_label(
@@ -104,8 +112,8 @@ impl eframe::App for FractalApp {
                             ui.label("Iterations:");
                             if ui
                                 .add(
-                                    egui::Slider::new(&mut self.max_iterations, 10..=10000)
-                                        .step_by(50.0)
+                                    egui::Slider::new(&mut self.max_iterations, 10..=1500)
+                                        .step_by(1.0)
                                         .suffix(" iters"),
                                 )
                                 .changed()
@@ -119,7 +127,7 @@ impl eframe::App for FractalApp {
                             if ui
                                 .add(
                                     egui::DragValue::new(&mut self.image_size.0)
-                                        .range(100..=1920)
+                                        .range(100..=8192)
                                         .suffix(" px")
                                         .speed(1.0),
                                 )
@@ -134,7 +142,7 @@ impl eframe::App for FractalApp {
                             if ui
                                 .add(
                                     egui::DragValue::new(&mut self.image_size.1)
-                                        .range(100..=1920)
+                                        .range(100..=8192)
                                         .suffix(" px")
                                         .speed(1.0),
                                 )

@@ -26,7 +26,6 @@ lto = false
 panic = "unwind"
 
 [profile.test]
-
 incremental = true
 opt-level = 1
 debug = false
@@ -35,7 +34,6 @@ codegen-units = 1
 lto = false
 
 [profile.release]
-
 incremental = false
 opt-level = 3
 debug = false
