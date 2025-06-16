@@ -55,6 +55,14 @@ impl eframe::App for FractalApp {
                         ColorScheme::Electric,
                         ColorScheme::Forest,
                         ColorScheme::Galaxy,
+                        ColorScheme::UltraSmooth,
+                        ColorScheme::DeepOcean,
+                        ColorScheme::PrismaticFire,
+                        ColorScheme::AuroralDream,
+                        ColorScheme::CosmicNebula,
+                        ColorScheme::RainbowSmooth,
+                        ColorScheme::VelvetShadow,
+                        ColorScheme::GoldenHour,
                     ] {
                         if ui
                             .selectable_label(
