@@ -8,6 +8,16 @@
 </div>
 
 
+<p align="center">
+  <img width="300px" height="250px" src="assets/mandelbrot.png" alt="Fractal" />
+  <img width="300px" height="250px" src="assets/mandelbrot-psy.png" alt="Fractal" />
+  <img width="300px" height="250px" src="assets/julia.png" alt="Fractal" />
+  <img width="300px" height="250px" src="assets/spiral.png" alt="Fractal" />
+  <img width="300px" height="250px" src="assets/tricorn.png" alt="Fractal" />
+  <img width="300px" height="250px" src="assets/dendrite.png" alt="Fractal" />
+  <img width="300px" height="250px" src="assets/bs.png" alt="Fractal" />
+</p>
+
 ## 📖 Overview
 
 A high-performance fractal renderer built in Rust with an interactive GUI for exploring the beautiful world of
