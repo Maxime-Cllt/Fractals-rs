@@ -4,9 +4,19 @@
 
 <div align="center">
     <img src="https://img.shields.io/badge/Rust-dea584?style=for-the-badge&logo=rust&logoColor=white" alt="Rust" />
-    <img src="https://img.shields.io/badge/Version-0.1.0-informational?style=for-the-badge" alt="Version" />
+    <img src="https://img.shields.io/badge/Version-1.0.0-informational?style=for-the-badge" alt="Version" />
 </div>
 
+
+<p align="center">
+  <img width="300px" height="250px" src="assets/mandelbrot.png" alt="Fractal" />
+  <img width="300px" height="250px" src="assets/mandelbrot-psy.png" alt="Fractal" />
+  <img width="300px" height="250px" src="assets/julia.png" alt="Fractal" />
+  <img width="300px" height="250px" src="assets/spiral.png" alt="Fractal" />
+  <img width="300px" height="250px" src="assets/tricorn.png" alt="Fractal" />
+  <img width="300px" height="250px" src="assets/dendrite.png" alt="Fractal" />
+  <img width="300px" height="250px" src="assets/bs.png" alt="Fractal" />
+</p>
 
 ## 📖 Overview
 
@@ -27,6 +37,7 @@ mathematical fractals including the Mandelbrot set, Julia sets, and more.
     - Real-time parameter adjustment
     - Color palette customization
 - **High Performance**: Multi-threaded rendering
+- **Precision Control**: Adjustable precision between float64 and float32
 
 ## 💻 Platform Support
 

@@ -4,6 +4,8 @@ use crate::structs::fractal_app::FractalApp;
 use crate::structs::point::Point;
 use eframe::emath::{Pos2, Rect, Vec2};
 use eframe::epaint::Color32;
+use egui::ColorImage;
+use crate::enums::precision_mode::PrecisionMode;
 
 impl eframe::App for FractalApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
@@ -35,7 +37,7 @@ impl eframe::App for FractalApp {
                     }
                 });
 
-                ui.menu_button("View", |ui| {
+                ui.menu_button("Color", |ui| {
                     if ui.button("Reset View").clicked() {
                         self.center = self.fractal_type.default_center();
                         self.zoom = 1.0;
@@ -45,25 +47,7 @@ impl eframe::App for FractalApp {
 
                     ui.separator();
 
-                    for color_scheme in [
-                        ColorScheme::Classic,
-                        ColorScheme::Hot,
-                        ColorScheme::Cool,
-                        ColorScheme::Grayscale,
-                        ColorScheme::Psychedelic,
-                        ColorScheme::Sunset,
-                        ColorScheme::Electric,
-                        ColorScheme::Forest,
-                        ColorScheme::Galaxy,
-                        ColorScheme::UltraSmooth,
-                        ColorScheme::DeepOcean,
-                        ColorScheme::PrismaticFire,
-                        ColorScheme::AuroralDream,
-                        ColorScheme::CosmicNebula,
-                        ColorScheme::RainbowSmooth,
-                        ColorScheme::VelvetShadow,
-                        ColorScheme::GoldenHour,
-                    ] {
+                    for color_scheme in ColorScheme::all() {
                         if ui
                             .selectable_label(
                                 self.color_scheme == color_scheme,
@@ -147,6 +131,31 @@ impl eframe::App for FractalApp {
                                         .speed(1.0),
                                 )
                                 .changed()
+                            {
+                                self.needs_update = true;
+                            }
+                        });
+                        
+                        // Change precision mode
+                        ui.horizontal(|ui| {
+                            ui.label("Precision Mode:");
+                            if ui
+                                .selectable_value(
+                                    &mut self.precision_mode,
+                                    PrecisionMode::Fast,
+                                    "Fast (float 32)",
+                                )
+                                .clicked()
+                            {
+                                self.needs_update = true;
+                            }
+                            if ui
+                                .selectable_value(
+                                    &mut self.precision_mode,
+                                    PrecisionMode::High,
+                                    "High (float 64)",
+                                )
+                                .clicked()
                             {
                                 self.needs_update = true;
                             }
@@ -249,7 +258,7 @@ impl eframe::App for FractalApp {
             );
 
             if self.needs_update && self.image_size.0 > 0 && self.image_size.1 > 0 {
-                let image = self.generate_fractal_image();
+                let image: ColorImage = self.generate_fractal_image();
                 self.texture = Some(ui.ctx().load_texture("fractal", image, Default::default()));
                 self.needs_update = false;
             }

@@ -1,6 +1,6 @@
 [package]
 name = "Fractals-rs"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2024"
 description = "A simple fractal viewer written in Rust using eframe and egui"
 authors = ["Maxime-Cllt"]
@@ -13,6 +13,7 @@ path = "src/lib.rs"
 eframe = "0.31.1"
 egui = "0.31.1"
 rayon = "1.10.0"
+image = "0.25.6"
 
 [dev-dependencies]
 criterion = "0.6.0"
@@ -42,6 +43,8 @@ codegen-units = 1
 overflow-checks = false
 panic = "abort"
 strip = "symbols"
+rpath = false
+debug-assertions = false
 
 
 [[bench]]

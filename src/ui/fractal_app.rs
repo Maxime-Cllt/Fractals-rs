@@ -4,6 +4,7 @@ use crate::structs::fractal_app::FractalApp;
 use crate::structs::point::Point;
 use egui::{Color32, Vec2};
 use rayon::prelude::*;
+use crate::enums::precision_mode::PrecisionMode;
 
 impl Default for FractalApp {
     fn default() -> Self {
@@ -18,6 +19,7 @@ impl Default for FractalApp {
             image_size: (800, 600),
             is_dragging: false,
             show_settings: false,
+            precision_mode: PrecisionMode::Fast,
             color_scheme: ColorScheme::default(),
         }
     }
@@ -25,8 +27,8 @@ impl Default for FractalApp {
 
 impl FractalApp {
     pub fn generate_fractal_image(&self) -> egui::ColorImage {
-        let width: usize = self.image_size.0 as usize;
-        let height: usize = self.image_size.1 as usize;
+        let width = self.image_size.0 as usize;
+        let height = self.image_size.1 as usize;
 
         if width == 0 || height == 0 {
             return egui::ColorImage::new([1, 1], Color32::BLACK);
@@ -41,12 +43,11 @@ impl FractalApp {
                     let cx = x_min + x as f64 * x_scale;
                     let cy = y_min + y as f64 * y_scale;
 
-                    let iterations =
-                        self.fractal_type
-                            .iterations(cx, cy, self.max_iterations, &self.julia_c);
+                    let iterations = self.fractal_type.iterations(
+                        cx, cy, self.max_iterations, &self.julia_c, self.precision_mode
+                    );
 
-                    self.color_scheme
-                        .to_color32(iterations, self.max_iterations)
+                    self.color_scheme.to_color32(iterations, self.max_iterations)
                 })
             })
             .collect();
