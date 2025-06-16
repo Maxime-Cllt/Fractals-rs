@@ -4,6 +4,8 @@ use crate::structs::fractal_app::FractalApp;
 use crate::structs::point::Point;
 use eframe::emath::{Pos2, Rect, Vec2};
 use eframe::epaint::Color32;
+use egui::ColorImage;
+use crate::enums::precision_mode::PrecisionMode;
 
 impl eframe::App for FractalApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
@@ -151,6 +153,31 @@ impl eframe::App for FractalApp {
                                 self.needs_update = true;
                             }
                         });
+                        
+                        // Change precision mode
+                        ui.horizontal(|ui| {
+                            ui.label("Precision Mode:");
+                            if ui
+                                .selectable_value(
+                                    &mut self.precision_mode,
+                                    PrecisionMode::Fast,
+                                    "Fast (float 32)",
+                                )
+                                .clicked()
+                            {
+                                self.needs_update = true;
+                            }
+                            if ui
+                                .selectable_value(
+                                    &mut self.precision_mode,
+                                    PrecisionMode::High,
+                                    "High (float 64)",
+                                )
+                                .clicked()
+                            {
+                                self.needs_update = true;
+                            }
+                        });
 
                         if self.fractal_type == FractalType::Julia {
                             ui.separator();
@@ -249,7 +276,7 @@ impl eframe::App for FractalApp {
             );
 
             if self.needs_update && self.image_size.0 > 0 && self.image_size.1 > 0 {
-                let image = self.generate_fractal_image();
+                let image: ColorImage = self.generate_fractal_image();
                 self.texture = Some(ui.ctx().load_texture("fractal", image, Default::default()));
                 self.needs_update = false;
             }
