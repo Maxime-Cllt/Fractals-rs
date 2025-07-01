@@ -96,7 +96,7 @@ impl eframe::App for FractalApp {
                             ui.label("Iterations:");
                             if ui
                                 .add(
-                                    egui::Slider::new(&mut self.max_iterations, 10..=1500)
+                                    egui::Slider::new(&mut self.max_iterations, 10..=3000)
                                         .step_by(1.0)
                                         .suffix(" iters"),
                                 )
