@@ -104,4 +104,4 @@ updates:
           - "chrono*"
           - "time*"
     target-branch: "main"
-    versioning-strategy: "increase"
+    versioning-strategy: "auto"
