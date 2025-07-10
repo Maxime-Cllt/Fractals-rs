@@ -4,7 +4,7 @@ use crate::structs::fractal_app::FractalApp;
 use crate::structs::point::Point;
 use eframe::emath::{Pos2, Rect, Vec2};
 use eframe::epaint::Color32;
-use egui::ColorImage;
+use egui::{ColorImage, TextureOptions};
 use crate::enums::precision_mode::PrecisionMode;
 
 impl eframe::App for FractalApp {
@@ -262,7 +262,7 @@ impl eframe::App for FractalApp {
 
             if self.needs_update && self.image_size.0 > 0 && self.image_size.1 > 0 {
                 let image: ColorImage = self.generate_fractal_image();
-                self.texture = Some(ui.ctx().load_texture("fractal", image, Default::default()));
+                self.texture = Some(ui.ctx().load_texture("fractal", image, TextureOptions::default()));
                 self.needs_update = false;
             }
 

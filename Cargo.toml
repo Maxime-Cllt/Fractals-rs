@@ -5,6 +5,7 @@ edition = "2024"
 description = "A simple fractal viewer written in Rust using eframe and egui"
 keywords = ["fractals", "egui", "eframe", "rust", "gui"]
 license = "GPL-3"
+categories = ["gui", "graphics"]
 repository = "https://github.com/Maxime-Cllt/Fractals-rs.git"
 authors = ["Maxime-Cllt"]
 

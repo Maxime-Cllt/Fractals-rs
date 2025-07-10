@@ -1,6 +1,6 @@
 use crate::traits::fractal_float::FractalFloat;
 
-/// Implementing the FractalFloat trait for f32 (Fast mode)
+/// Implementing the `FractalFloat` trait for f32 (Fast mode)
 impl FractalFloat for f32 {
     #[inline]
     fn zero() -> Self {
@@ -24,12 +24,12 @@ impl FractalFloat for f32 {
 
     #[inline]
     fn from_f64(val: f64) -> Self {
-        val as f32
+        val as Self
     }
 
     #[inline]
     fn to_f64(&self) -> f64 {
-        *self as f64
+        f64::from(*self)
     }
 
     #[inline]

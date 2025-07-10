@@ -26,7 +26,7 @@ pub enum ColorScheme {
 impl ColorScheme {
     /// Returns the name of the color scheme.
     #[inline]
-    pub fn name(&self) -> &'static str {
+    pub const fn name(&self) -> &'static str {
         match self {
             Self::Classic => "Classic",
             Self::Hot => "Hot",
@@ -52,23 +52,23 @@ impl ColorScheme {
     #[inline]
     pub const fn all() -> [Self; 17] {
         [
-            ColorScheme::Classic,
-            ColorScheme::Hot,
-            ColorScheme::Cool,
-            ColorScheme::Grayscale,
-            ColorScheme::Psychedelic,
-            ColorScheme::Sunset,
-            ColorScheme::Electric,
-            ColorScheme::Forest,
-            ColorScheme::Galaxy,
-            ColorScheme::UltraSmooth,
-            ColorScheme::DeepOcean,
-            ColorScheme::PrismaticFire,
-            ColorScheme::AuroralDream,
-            ColorScheme::CosmicNebula,
-            ColorScheme::RainbowSmooth,
-            ColorScheme::VelvetShadow,
-            ColorScheme::GoldenHour,
+            Self::Classic,
+            Self::Hot,
+            Self::Cool,
+            Self::Grayscale,
+            Self::Psychedelic,
+            Self::Sunset,
+            Self::Electric,
+            Self::Forest,
+            Self::Galaxy,
+            Self::UltraSmooth,
+            Self::DeepOcean,
+            Self::PrismaticFire,
+            Self::AuroralDream,
+            Self::CosmicNebula,
+            Self::RainbowSmooth,
+            Self::VelvetShadow,
+            Self::GoldenHour,
         ]
     }
 
@@ -76,13 +76,13 @@ impl ColorScheme {
     #[inline]
     fn smooth_step(edge0: f32, edge1: f32, x: f32) -> f32 {
         let t = ((x - edge0) / (edge1 - edge0)).clamp(0.0, 1.0);
-        t * t * (3.0 - 2.0 * t)
+        t * t * 2.0f32.mul_add(-t, 3.0)
     }
 
     /// Performs linear interpolation between two values.
     #[inline]
     fn lerp(a: f32, b: f32, t: f32) -> f32 {
-        a + t * (b - a)
+        t.mul_add(b - a, a)
     }
 
     /// Converts HSV color to RGB.
@@ -112,18 +112,20 @@ impl ColorScheme {
 impl ColorScheme {
     /// Converts the number of iterations to a color based on the color scheme.
     #[inline]
+    #[must_use]
     pub fn to_color32(&self, iterations: u16, max_iterations: u16) -> Color32 {
         if iterations >= max_iterations {
             return Color32::BLACK;
         }
 
-        let t: f32 = iterations as f32 / max_iterations as f32;
-        let smoothed: f32 = t.powf(0.5);
+        let t: f32 = f32::from(iterations) / f32::from(max_iterations);
+        let smoothed: f32 = t.sqrt();
 
         match self {
             Self::Classic => {
-                let r: u8 = (255.0 * (0.5 + 0.5 * (4.0 * smoothed).sin())) as u8;
-                let g: u8 = (255.0 * (0.5 + 0.5 * (2.0 * smoothed + 2.0).sin())) as u8;
+                let r: u8 = 0.5f32.mul_add((4.0 * smoothed).sin(), 0.5) as u8;
+                let g: u8 =
+                    (255.0 * 0.5f32.mul_add(2.0f32.mul_add(smoothed, 2.0).sin(), 0.5)) as u8;
                 let b: u8 = (255.0 * (1.0 - smoothed).powf(0.3)) as u8;
                 Color32::from_rgb(r, g, b)
             }
@@ -284,66 +286,70 @@ impl ColorScheme {
                 let wave2: f32 = (smoothed * 5.0 * PI + 1.0).sin();
                 let wave3: f32 = (smoothed * 7.0 * PI + 2.0).sin();
 
-                let r: u8 =
-                    (50.0 + 100.0 * (0.5 + 0.3 * wave1 + 0.2 * wave3).clamp(0.0, 1.0)) as u8;
-                let g: u8 = (100.0 + 155.0 * (0.7 + 0.3 * wave2).clamp(0.0, 1.0)) as u8;
-                let b: u8 = (80.0 + 175.0 * (0.6 + 0.4 * wave1 * wave2).clamp(0.0, 1.0)) as u8;
+                let r: u8 = (50.0
+                    + 100.0 * (0.3f32.mul_add(wave1, 0.5) + 0.2 * wave3).clamp(0.0, 1.0))
+                    as u8;
+                let g: u8 =
+                    155.0f32.mul_add(0.3f32.mul_add(wave2, 0.7).clamp(0.0, 1.0), 100.0) as u8;
+                let b: u8 =
+                    175.0f32.mul_add((0.4 * wave1).mul_add(wave2, 0.6).clamp(0.0, 1.0), 80.0) as u8;
                 Color32::from_rgb(r, g, b)
             }
 
             Self::CosmicNebula => {
                 let cosmic_t: f32 = smoothed.powf(0.6);
                 let dust_pattern: f32 = (cosmic_t * 4.0 * PI).sin().abs();
-                let gas_pattern: f32 = (cosmic_t * 6.0 * PI + 1.5).cos().abs();
+                let gas_pattern: f32 = (cosmic_t * 6.0).mul_add(PI, 1.5).cos().abs();
 
-                let r: u8 = (80.0 + 175.0 * Self::lerp(dust_pattern, gas_pattern, cosmic_t)) as u8;
-                let g: u8 = (40.0 + 150.0 * cosmic_t * dust_pattern) as u8;
-                let b: u8 = (120.0 + 135.0 * gas_pattern * cosmic_t.powf(0.5)) as u8;
+                let r: u8 =
+                    175.0f32.mul_add(Self::lerp(dust_pattern, gas_pattern, cosmic_t), 80.0) as u8;
+                let g: u8 = (150.0 * cosmic_t).mul_add(dust_pattern, 40.0) as u8;
+                let b: u8 = (135.0 * gas_pattern).mul_add(cosmic_t.sqrt(), 120.0) as u8;
                 Color32::from_rgb(r, g, b)
             }
 
             Self::RainbowSmooth => {
                 let hue: f32 = smoothed * 360.0;
-                let saturation: f32 = 0.8 + 0.2 * (smoothed * 2.0 * PI).sin().abs();
-                let value: f32 = 0.9 + 0.1 * (smoothed * 3.0 * PI).cos().abs();
+                let saturation: f32 = 0.2f32.mul_add((smoothed * 2.0 * PI).sin().abs(), 0.8);
+                let value: f32 = 0.1f32.mul_add((smoothed * 3.0 * PI).cos().abs(), 0.9);
 
                 Self::hsv_to_rgb(hue, saturation, value)
             }
 
             Self::VelvetShadow => {
                 let depth: f32 = Self::smooth_step(0.0, 1.0, smoothed);
-                let texture: f32 = (smoothed * 10.0 * PI).sin() * 0.08 + 1.0;
+                let texture: f32 = (smoothed * 10.0 * PI).sin().mul_add(0.08, 1.0);
 
-                let r: u8 = (20.0 + 120.0 * depth.powf(2.0) * texture) as u8;
-                let g: u8 = (10.0 + 80.0 * depth.powf(1.5)) as u8;
-                let b: u8 = (40.0 + 180.0 * depth * texture) as u8;
+                let r: u8 = (120.0 * depth.powf(2.0)).mul_add(texture, 20.0) as u8;
+                let g: u8 = 80.0f32.mul_add(depth.powf(1.5), 10.0) as u8;
+                let b: u8 = (180.0 * depth).mul_add(texture, 40.0) as u8;
                 Color32::from_rgb(r, g, b)
             }
 
             Self::GoldenHour => {
                 let warmth: f32 = Self::smooth_step(0.0, 1.0, smoothed);
-                let glow: f32 = (smoothed * 4.0 * PI).sin().abs() * 0.1 + 0.9;
+                let glow: f32 = (smoothed * 4.0 * PI).sin().abs().mul_add(0.1, 0.9);
 
                 if warmth < 0.4 {
                     let t: f32 = warmth / 0.4;
                     let smooth_t: f32 = Self::smooth_step(0.0, 1.0, t);
-                    let r: u8 = (40.0 + 180.0 * smooth_t * glow) as u8;
-                    let g: u8 = (20.0 + 100.0 * smooth_t * glow) as u8;
+                    let r: u8 = (180.0 * smooth_t).mul_add(glow, 40.0) as u8;
+                    let g: u8 = (100.0 * smooth_t).mul_add(glow, 20.0) as u8;
                     let b: u8 = (80.0 * (1.0 - smooth_t)) as u8;
                     Color32::from_rgb(r, g, b)
                 } else if warmth < 0.8 {
                     let t: f32 = (warmth - 0.4) / 0.4;
                     let smooth_t: f32 = Self::smooth_step(0.0, 1.0, t);
-                    let r: u8 = (220.0 + 35.0 * smooth_t * glow) as u8;
-                    let g: u8 = (120.0 + 100.0 * smooth_t * glow) as u8;
-                    let b: u8 = (30.0 + 70.0 * smooth_t) as u8;
+                    let r: u8 = (35.0 * smooth_t).mul_add(glow, 220.0) as u8;
+                    let g: u8 = (100.0 * smooth_t).mul_add(glow, 120.0) as u8;
+                    let b: u8 = 70.0f32.mul_add(smooth_t, 30.0) as u8;
                     Color32::from_rgb(r, g, b)
                 } else {
                     let t: f32 = (warmth - 0.8) / 0.2;
                     let smooth_t: f32 = Self::smooth_step(0.0, 1.0, t);
                     let r: u8 = 255;
-                    let g: u8 = (220.0 + 35.0 * smooth_t) as u8;
-                    let b: u8 = (100.0 + 100.0 * smooth_t * glow) as u8;
+                    let g: u8 = 35.0f32.mul_add(smooth_t, 220.0) as u8;
+                    let b: u8 = (100.0 * smooth_t).mul_add(glow, 100.0) as u8;
                     Color32::from_rgb(r, g, b)
                 }
             }

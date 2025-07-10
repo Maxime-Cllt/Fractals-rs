@@ -4,9 +4,9 @@ pub struct Point {
 }
 
 impl Point {
-    
     /// Creates a new `Point` with the given x and y coordinates.
     #[inline]
+    #[must_use]
     pub const fn new(x: f64, y: f64) -> Self {
         Self { x, y }
     }
