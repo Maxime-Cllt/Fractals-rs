@@ -1,10 +1,10 @@
 use crate::enums::fractal_type::FractalType;
+use crate::enums::precision_mode::PrecisionMode;
 use crate::structs::color_scheme::ColorScheme;
 use crate::structs::fractal_app::FractalApp;
 use crate::structs::point::Point;
 use egui::{Color32, Vec2};
 use rayon::prelude::*;
-use crate::enums::precision_mode::PrecisionMode;
 
 impl Default for FractalApp {
     fn default() -> Self {
@@ -26,6 +26,7 @@ impl Default for FractalApp {
 }
 
 impl FractalApp {
+    /// Generates a fractal image based on the current settings.
     pub fn generate_fractal_image(&self) -> egui::ColorImage {
         let width = self.image_size.0 as usize;
         let height = self.image_size.1 as usize;
@@ -44,10 +45,15 @@ impl FractalApp {
                     let cy = y_min + y as f64 * y_scale;
 
                     let iterations = self.fractal_type.iterations(
-                        cx, cy, self.max_iterations, &self.julia_c, self.precision_mode
+                        cx,
+                        cy,
+                        self.max_iterations,
+                        &self.julia_c,
+                        self.precision_mode,
                     );
 
-                    self.color_scheme.to_color32(iterations, self.max_iterations)
+                    self.color_scheme
+                        .to_color32(iterations, self.max_iterations)
                 })
             })
             .collect();
@@ -61,29 +67,37 @@ impl FractalApp {
         )
     }
 
+    /// Computes the scale factors and min/max coordinates for the fractal view.
     fn compute_scale(&self) -> (f64, f64, f64, f64) {
         let width: u32 = self.image_size.0;
         let height: u32 = self.image_size.1;
 
-        let aspect_ratio: f64 = width as f64 / height as f64;
-        let zoom_factor: f64 = 2.0 / self.zoom;
+        let aspect_ratio: f64 = f64::from(width) / f64::from(height);
+        let zoom_factor: f64 = 2.0_f64 / self.zoom;
         let x_min: f64 = self.center.x - zoom_factor * aspect_ratio;
         let x_max: f64 = self.center.x + zoom_factor * aspect_ratio;
         let y_min: f64 = self.center.y - zoom_factor;
         let y_max: f64 = self.center.y + zoom_factor;
 
-        let x_scale: f64 = (x_max - x_min) / width as f64;
-        let y_scale: f64 = (y_max - y_min) / height as f64;
+        let x_scale: f64 = (x_max - x_min) / f64::from(width);
+        let y_scale: f64 = (y_max - y_min) / f64::from(height);
 
         (x_scale, y_scale, x_min, y_min)
     }
 
+    /// Handles mouse input for zooming and panning the fractal view.
+    #[inline]
     pub fn handle_mouse_input(&mut self, response: &egui::Response, image_rect: egui::Rect) {
+        const ZOOM_STEP: f64 = 1.1;
         // Handle zoom with scroll wheel
         if response.hovered() {
             let scroll_delta = response.ctx.input(|i| i.smooth_scroll_delta.y);
             if scroll_delta != 0.0 {
-                let zoom_factor = if scroll_delta > 0.0 { 1.1 } else { 1.0 / 1.1 };
+                let zoom_factor = if scroll_delta > 0.0 {
+                    ZOOM_STEP
+                } else {
+                    1.0 / ZOOM_STEP
+                };
 
                 // Get mouse position relative to image
                 if let Some(mouse_pos) = response.ctx.input(|i| i.pointer.hover_pos()) {
@@ -92,7 +106,8 @@ impl FractalApp {
                     let norm_y = rel_pos.y / image_rect.height();
 
                     // Convert normalized coordinates to complex plane
-                    let aspect_ratio = image_rect.width() as f64 / image_rect.height() as f64;
+                    let aspect_ratio =
+                        f64::from(image_rect.width()) / f64::from(image_rect.height());
                     let zoom_extent = 2.0 / self.zoom;
 
                     let mouse_complex_x =
@@ -147,14 +162,15 @@ impl FractalApp {
 
                 // Convert to complex coordinates
                 let aspect_ratio = image_rect.width() as f64 / image_rect.height() as f64;
-                let zoom_extent = 2.0 / self.zoom;
+                let zoom_extent = 2.0_f64 / self.zoom;
 
-                let new_center_x =
-                    self.center.x + (norm_x as f64 - 0.5) * zoom_extent * aspect_ratio * 2.0;
-                let new_center_y = self.center.y + (norm_y as f64 - 0.5) * zoom_extent * 2.0;
+                let new_center_x = self.center.x
+                    + (norm_x as f64 - 0.5_f64) * zoom_extent * aspect_ratio * 2.0_f64;
+                let new_center_y =
+                    self.center.y + (norm_y as f64 - 0.5_f64) * zoom_extent * 2.0_f64;
 
                 self.center = Point::new(new_center_x, new_center_y);
-                self.zoom *= 2.0;
+                self.zoom *= 2.0_f64;
                 self.needs_update = true;
             }
         }

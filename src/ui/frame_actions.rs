@@ -8,6 +8,9 @@ use egui::ColorImage;
 use crate::enums::precision_mode::PrecisionMode;
 
 impl eframe::App for FractalApp {
+
+    /// Called to update the UI and handle events.
+    #[inline]
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // Top menu bar
         egui::TopBottomPanel::top("menu_bar").show(ctx, |ui| {

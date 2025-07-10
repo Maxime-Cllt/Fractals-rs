@@ -24,6 +24,8 @@ pub enum ColorScheme {
 }
 
 impl ColorScheme {
+    /// Returns the name of the color scheme.
+    #[inline]
     pub fn name(&self) -> &'static str {
         match self {
             ColorScheme::Classic => "Classic",
@@ -46,6 +48,8 @@ impl ColorScheme {
         }
     }
 
+    /// Returns all available color schemes.
+    #[inline]
     pub const fn all() -> [ColorScheme; 17] {
         [
             ColorScheme::Classic,
@@ -68,15 +72,21 @@ impl ColorScheme {
         ]
     }
 
+    /// Smooth step function for smooth interpolation between two edges.
+    #[inline]
     fn smooth_step(edge0: f32, edge1: f32, x: f32) -> f32 {
         let t = ((x - edge0) / (edge1 - edge0)).clamp(0.0, 1.0);
         t * t * (3.0 - 2.0 * t)
     }
 
+    /// Performs linear interpolation between two values.
+    #[inline]
     fn lerp(a: f32, b: f32, t: f32) -> f32 {
         a + t * (b - a)
     }
 
+    /// Converts HSV color to RGB.
+    #[inline]
     fn hsv_to_rgb(h: f32, s: f32, v: f32) -> Color32 {
         let c = v * s;
         let x = c * (1.0 - ((h / 60.0) % 2.0 - 1.0).abs());
@@ -101,6 +111,7 @@ impl ColorScheme {
 
 impl ColorScheme {
     /// Converts the number of iterations to a color based on the color scheme.
+    #[inline]
     pub fn to_color32(&self, iterations: u16, max_iterations: u16) -> Color32 {
         if iterations >= max_iterations {
             return Color32::BLACK;
@@ -110,13 +121,13 @@ impl ColorScheme {
         let smoothed: f32 = t.powf(0.5);
 
         match self {
-            ColorScheme::Classic => {
+            Self::Classic => {
                 let r: u8 = (255.0 * (0.5 + 0.5 * (4.0 * smoothed).sin())) as u8;
                 let g: u8 = (255.0 * (0.5 + 0.5 * (2.0 * smoothed + 2.0).sin())) as u8;
                 let b: u8 = (255.0 * (1.0 - smoothed).powf(0.3)) as u8;
                 Color32::from_rgb(r, g, b)
             }
-            ColorScheme::Hot => {
+            Self::Hot => {
                 if smoothed < 0.25 {
                     let t: f32 = smoothed * 4.0;
                     Color32::from_rgb((80.0 + 175.0 * t) as u8, (20.0 * t) as u8, 0)
@@ -131,7 +142,7 @@ impl ColorScheme {
                     Color32::from_rgb(255, 255, (200.0 + 55.0 * t) as u8)
                 }
             }
-            ColorScheme::Cool => {
+            Self::Cool => {
                 let ice_shimmer = (smoothed * 6.0 * PI).sin() * 0.3 + 0.7;
                 let frost_pattern = (smoothed * 4.0 * PI).cos().abs();
 
@@ -140,14 +151,14 @@ impl ColorScheme {
                 let b = (180.0 + 75.0 * smoothed.powf(0.3)) as u8;
                 Color32::from_rgb(r, g, b)
             }
-            ColorScheme::Psychedelic => {
+            Self::Psychedelic => {
                 let angle: f32 = smoothed * (2.0 * PI) * 3.0;
                 let r: u8 = (127.5 + 127.5 * angle.sin()) as u8;
                 let g: u8 = (127.5 + 127.5 * (angle + 2.094).sin()) as u8;
                 let b: u8 = (127.5 + 127.5 * (angle + 4.188).sin()) as u8;
                 Color32::from_rgb(r, g, b)
             }
-            ColorScheme::Sunset => {
+            Self::Sunset => {
                 if smoothed < 0.3 {
                     let t = smoothed / 0.3;
                     let r = (30.0 + 225.0 * t) as u8;
@@ -168,14 +179,14 @@ impl ColorScheme {
                     Color32::from_rgb(r, g, b)
                 }
             }
-            ColorScheme::Electric => {
+            Self::Electric => {
                 let pulse = (smoothed * 10.0).sin().abs();
                 let r = (255.0 * (smoothed * 2.0).min(1.0) * pulse) as u8;
                 let g = ((smoothed - 0.2) * 2.5).clamp(0.0, 1.0) as u8;
                 let b = (255.0 * ((1.0 - smoothed) * 1.5).min(1.0)) as u8;
                 Color32::from_rgb(r, g, b)
             }
-            ColorScheme::Forest => {
+            Self::Forest => {
                 let hue_wave = (smoothed * 4.0 * PI).sin() * 0.5 + 0.5;
                 let depth_wave = (smoothed * 6.0 * PI).cos().abs();
 
@@ -203,7 +214,7 @@ impl ColorScheme {
                     Color32::from_rgb(r, g, b)
                 }
             }
-            ColorScheme::Galaxy => {
+            Self::Galaxy => {
                 let cycle = (smoothed * 3.0 * PI).sin().abs();
                 let spiral = (smoothed * 6.0 * PI).cos() * 0.5 + 0.5;
                 let r = (60.0 + 140.0 * (cycle * smoothed).powf(0.8)) as u8;
@@ -211,20 +222,20 @@ impl ColorScheme {
                 let b = (120.0 + 135.0 * (smoothed * spiral).powf(0.5)) as u8;
                 Color32::from_rgb(r, g, b)
             }
-            ColorScheme::Grayscale => {
+            Self::Grayscale => {
                 let gray = (255.0 * smoothed.powf(0.8)) as u8;
                 Color32::from_rgb(gray, gray, gray)
             }
 
-            ColorScheme::UltraSmooth => {
+            Self::UltraSmooth => {
                 let phase: f32 = smoothed * (2.0 * PI);
-                let r: u8 = (128.0 + 127.0 * phase.sin()) as u8;
-                let g: u8 = (128.0 + 127.0 * (phase + 2.094).sin()) as u8;
-                let b: u8 = (128.0 + 127.0 * (phase + 4.188).sin()) as u8;
+                let r: u8 = 127.0f32.mul_add(phase.sin(), 128.0) as u8;
+                let g: u8 = 127.0f32.mul_add((phase + 2.094).sin(), 128.0) as u8;
+                let b: u8 = 127.0f32.mul_add((phase + 4.188).sin(), 128.0) as u8;
                 Color32::from_rgb(r, g, b)
             }
 
-            ColorScheme::DeepOcean => {
+            Self::DeepOcean => {
                 let depth: f32 = smoothed.powf(1.5);
                 let wave: f32 = (smoothed * 8.0 * PI).sin() * 0.1 + 1.0;
 
@@ -234,7 +245,7 @@ impl ColorScheme {
                 Color32::from_rgb(r, g, b)
             }
 
-            ColorScheme::PrismaticFire => {
+            Self::PrismaticFire => {
                 let heat = smoothed.powf(0.7);
                 let flicker = (smoothed * 12.0).sin() * 0.05 + 1.0;
 
@@ -268,7 +279,7 @@ impl ColorScheme {
                 }
             }
 
-            ColorScheme::AuroralDream => {
+            Self::AuroralDream => {
                 let wave1: f32 = (smoothed * 3.0 * PI).sin();
                 let wave2: f32 = (smoothed * 5.0 * PI + 1.0).sin();
                 let wave3: f32 = (smoothed * 7.0 * PI + 2.0).sin();
@@ -280,7 +291,7 @@ impl ColorScheme {
                 Color32::from_rgb(r, g, b)
             }
 
-            ColorScheme::CosmicNebula => {
+            Self::CosmicNebula => {
                 let cosmic_t: f32 = smoothed.powf(0.6);
                 let dust_pattern: f32 = (cosmic_t * 4.0 * PI).sin().abs();
                 let gas_pattern: f32 = (cosmic_t * 6.0 * PI + 1.5).cos().abs();
@@ -291,7 +302,7 @@ impl ColorScheme {
                 Color32::from_rgb(r, g, b)
             }
 
-            ColorScheme::RainbowSmooth => {
+            Self::RainbowSmooth => {
                 let hue: f32 = smoothed * 360.0;
                 let saturation: f32 = 0.8 + 0.2 * (smoothed * 2.0 * PI).sin().abs();
                 let value: f32 = 0.9 + 0.1 * (smoothed * 3.0 * PI).cos().abs();
@@ -299,7 +310,7 @@ impl ColorScheme {
                 Self::hsv_to_rgb(hue, saturation, value)
             }
 
-            ColorScheme::VelvetShadow => {
+            Self::VelvetShadow => {
                 let depth: f32 = Self::smooth_step(0.0, 1.0, smoothed);
                 let texture: f32 = (smoothed * 10.0 * PI).sin() * 0.08 + 1.0;
 
@@ -309,7 +320,7 @@ impl ColorScheme {
                 Color32::from_rgb(r, g, b)
             }
 
-            ColorScheme::GoldenHour => {
+            Self::GoldenHour => {
                 let warmth: f32 = Self::smooth_step(0.0, 1.0, smoothed);
                 let glow: f32 = (smoothed * 4.0 * PI).sin().abs() * 0.1 + 0.9;
 
