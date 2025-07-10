@@ -28,29 +28,29 @@ impl ColorScheme {
     #[inline]
     pub fn name(&self) -> &'static str {
         match self {
-            ColorScheme::Classic => "Classic",
-            ColorScheme::Hot => "Hot",
-            ColorScheme::Cool => "Cool",
-            ColorScheme::Grayscale => "Grayscale",
-            ColorScheme::Psychedelic => "Psychedelic",
-            ColorScheme::Sunset => "Sunset",
-            ColorScheme::Electric => "Electric",
-            ColorScheme::Forest => "Forest",
-            ColorScheme::Galaxy => "Galaxy",
-            ColorScheme::UltraSmooth => "Ultra Smooth",
-            ColorScheme::DeepOcean => "Deep Ocean",
-            ColorScheme::PrismaticFire => "Prismatic Fire",
-            ColorScheme::AuroralDream => "Auroral Dream",
-            ColorScheme::CosmicNebula => "Cosmic Nebula",
-            ColorScheme::RainbowSmooth => "Rainbow Smooth",
-            ColorScheme::VelvetShadow => "Velvet Shadow",
-            ColorScheme::GoldenHour => "Golden Hour",
+            Self::Classic => "Classic",
+            Self::Hot => "Hot",
+            Self::Cool => "Cool",
+            Self::Grayscale => "Grayscale",
+            Self::Psychedelic => "Psychedelic",
+            Self::Sunset => "Sunset",
+            Self::Electric => "Electric",
+            Self::Forest => "Forest",
+            Self::Galaxy => "Galaxy",
+            Self::UltraSmooth => "Ultra Smooth",
+            Self::DeepOcean => "Deep Ocean",
+            Self::PrismaticFire => "Prismatic Fire",
+            Self::AuroralDream => "Auroral Dream",
+            Self::CosmicNebula => "Cosmic Nebula",
+            Self::RainbowSmooth => "Rainbow Smooth",
+            Self::VelvetShadow => "Velvet Shadow",
+            Self::GoldenHour => "Golden Hour",
         }
     }
 
     /// Returns all available color schemes.
     #[inline]
-    pub const fn all() -> [ColorScheme; 17] {
+    pub const fn all() -> [Self; 17] {
         [
             ColorScheme::Classic,
             ColorScheme::Hot,

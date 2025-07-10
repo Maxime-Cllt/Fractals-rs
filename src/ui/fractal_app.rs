@@ -27,6 +27,7 @@ impl Default for FractalApp {
 
 impl FractalApp {
     /// Generates a fractal image based on the current settings.
+    #[inline]
     pub fn generate_fractal_image(&self) -> egui::ColorImage {
         let width = self.image_size.0 as usize;
         let height = self.image_size.1 as usize;
@@ -68,6 +69,7 @@ impl FractalApp {
     }
 
     /// Computes the scale factors and min/max coordinates for the fractal view.
+    #[inline]
     fn compute_scale(&self) -> (f64, f64, f64, f64) {
         let width: u32 = self.image_size.0;
         let height: u32 = self.image_size.1;

@@ -1,3 +1,4 @@
+/// A trait for representing floating-point numbers in a fractal context.
 pub trait FractalFloat: Clone + PartialOrd {
     fn zero() -> Self;
     fn two() -> Self;

@@ -12,6 +12,7 @@ pub enum FractalType {
 
 impl FractalType {
     /// Returns the number of iterations with specified precision mode
+    #[inline]
     pub fn iterations(
         &self,
         cx: f64,
@@ -25,35 +26,30 @@ impl FractalType {
                 let cx_f32 = cx as f32;
                 let cy_f32 = cy as f32;
                 match self {
-                    FractalType::Mandelbrot => {
+                    Self::Mandelbrot => {
                         Self::mandelbrot_iterations_generic(cx_f32, cy_f32, max_iteration)
                     }
-                    FractalType::Julia => {
+                    Self::Julia => {
                         Self::julia_iterations_generic(cx_f32, cy_f32, max_iteration, julia_c)
                     }
-                    FractalType::BurningShip => {
+                    Self::BurningShip => {
                         Self::burning_ship_iterations_generic(cx_f32, cy_f32, max_iteration)
                     }
-                    FractalType::Tricorn => {
+                    Self::Tricorn => {
                         Self::tricorn_iterations_generic(cx_f32, cy_f32, max_iteration)
                     }
                 }
             }
             PrecisionMode::High => match self {
-                FractalType::Mandelbrot => {
-                    Self::mandelbrot_iterations_generic(cx, cy, max_iteration)
-                }
-                FractalType::Julia => {
-                    Self::julia_iterations_generic(cx, cy, max_iteration, julia_c)
-                }
-                FractalType::BurningShip => {
-                    Self::burning_ship_iterations_generic(cx, cy, max_iteration)
-                }
-                FractalType::Tricorn => Self::tricorn_iterations_generic(cx, cy, max_iteration),
+                Self::Mandelbrot => Self::mandelbrot_iterations_generic(cx, cy, max_iteration),
+                Self::Julia => Self::julia_iterations_generic(cx, cy, max_iteration, julia_c),
+                Self::BurningShip => Self::burning_ship_iterations_generic(cx, cy, max_iteration),
+                Self::Tricorn => Self::tricorn_iterations_generic(cx, cy, max_iteration),
             },
         }
     }
 
+    /// Returns the number of iterations for the Mandelbrot fractal
     #[inline]
     fn mandelbrot_iterations_generic<T: FractalFloat>(cx: T, cy: T, max_iteration: u16) -> u16 {
         let mut zr = T::zero();
@@ -79,6 +75,7 @@ impl FractalType {
         iterations
     }
 
+    /// Returns the number of iterations for the Julia fractal
     #[inline]
     fn julia_iterations_generic<T: FractalFloat>(
         zx: T,
@@ -109,6 +106,7 @@ impl FractalType {
         iterations
     }
 
+    /// Returns the number of iterations for the Burning Ship fractal
     #[inline]
     fn burning_ship_iterations_generic<T: FractalFloat>(cx: T, cy: T, max_iteration: u16) -> u16 {
         let mut x = T::zero();
@@ -131,6 +129,7 @@ impl FractalType {
         iterations
     }
 
+    /// Returns the number of iterations for the Tricorn fractal
     #[inline]
     fn tricorn_iterations_generic<T: FractalFloat>(cx: T, cy: T, max_iteration: u16) -> u16 {
         let mut x = T::zero();
@@ -153,21 +152,23 @@ impl FractalType {
         iterations
     }
 
+    /// Returns the name of the fractal type
     pub const fn name(&self) -> &'static str {
         match self {
-            FractalType::Mandelbrot => "Mandelbrot Set",
-            FractalType::Julia => "Julia Set",
-            FractalType::BurningShip => "Burning Ship",
-            FractalType::Tricorn => "Tricorn",
+            Self::Mandelbrot => "Mandelbrot Set",
+            Self::Julia => "Julia Set",
+            Self::BurningShip => "Burning Ship",
+            Self::Tricorn => "Tricorn",
         }
     }
 
+    /// Returns the default center point for the fractal type
     pub const fn default_center(&self) -> Point {
         match self {
-            FractalType::Mandelbrot => Point::new(-0.5, 0.0),
-            FractalType::Julia => Point::new(0.0, 0.0),
-            FractalType::BurningShip => Point::new(-0.5, -0.5),
-            FractalType::Tricorn => Point::new(0.0, 0.0),
+            Self::Mandelbrot => Point::new(-0.5, 0.0),
+            Self::Julia => Point::new(0.0, 0.0),
+            Self::BurningShip => Point::new(-0.5, -0.5),
+            Self::Tricorn => Point::new(0.0, 0.0),
         }
     }
 }
