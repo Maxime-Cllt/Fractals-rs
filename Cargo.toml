@@ -3,6 +3,10 @@ name = "Fractals-rs"
 version = "1.0.0"
 edition = "2024"
 description = "A simple fractal viewer written in Rust using eframe and egui"
+keywords = ["fractals", "egui", "eframe", "rust", "gui"]
+license = "GPL-3"
+categories = ["gui", "graphics"]
+repository = "https://github.com/Maxime-Cllt/Fractals-rs.git"
 authors = ["Maxime-Cllt"]
 
 [lib]
@@ -22,7 +26,6 @@ criterion = "0.6.0"
 opt-level = 0
 debug = true
 overflow-checks = true
-codegen-units = 20
 lto = false
 panic = "unwind"
 
