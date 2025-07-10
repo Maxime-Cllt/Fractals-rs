@@ -89,5 +89,4 @@ Contributions are welcome! To contribute:
 ## Acknowledgments
 
 - [Benoit Mandelbrot](https://en.wikipedia.org/wiki/Benoit_Mandelbrot) for his groundbreaking work on fractal geometry
-- The Rust community for excellent mathematical and GUI libraries
 - [The Fractal Geometry of Nature](https://en.wikipedia.org/wiki/The_Fractal_Geometry_of_Nature) for inspiration
