@@ -80,7 +80,7 @@ impl FractalApp {
         let aspect_ratio: f64 = f64::from(width) / f64::from(height);
         let zoom_factor: f64 = 2.0_f64 / self.zoom;
         let x_min: f64 = zoom_factor.mul_add(-aspect_ratio, self.center.x);
-        let x_max: f64 = self.center.x + zoom_factor * aspect_ratio;
+        let x_max: f64 = zoom_factor.mul_add(aspect_ratio, self.center.x);
         let y_min: f64 = self.center.y - zoom_factor;
         let y_max: f64 = self.center.y + zoom_factor;
 
