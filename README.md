@@ -4,7 +4,7 @@
 
 <div align="center">
     <img src="https://img.shields.io/badge/Rust-dea584?style=for-the-badge&logo=rust&logoColor=white" alt="Rust" />
-    <img src="https://img.shields.io/badge/Version-1.0.0-informational?style=for-the-badge" alt="Version" />
+    <img src="https://img.shields.io/badge/Version-1.0.1-informational?style=for-the-badge" alt="Version" />
 </div>
 
 
@@ -70,6 +70,24 @@ git clone https://github.com/Maxime-Cllt/Fractals-rs.git
 
 ```bash
 cargo run --release
+```
+
+## 🧪 Code Quality
+
+### Unit Tests available
+
+To run unit tests, use the following command:
+
+```bash
+cargo test
+```
+
+### Benchmarks available
+
+To run benchmarks, use the following command:
+
+```bash
+cargo bench
 ```
 
 ## 🔗 See Also
