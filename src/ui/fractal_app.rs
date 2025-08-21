@@ -162,25 +162,25 @@ impl FractalApp {
         }
 
         // Handle double-click to zoom in
-        if response.double_clicked() {
-            if let Some(click_pos) = response.interact_pointer_pos() {
-                let rel_pos = click_pos - image_rect.min;
-                let norm_x = rel_pos.x / image_rect.width();
-                let norm_y = rel_pos.y / image_rect.height();
+        if response.double_clicked()
+            && let Some(click_pos) = response.interact_pointer_pos()
+        {
+            let rel_pos = click_pos - image_rect.min;
+            let norm_x = rel_pos.x / image_rect.width();
+            let norm_y = rel_pos.y / image_rect.height();
 
-                // Convert to complex coordinates
-                let aspect_ratio = f64::from(image_rect.width()) / f64::from(image_rect.height());
-                let zoom_extent = 2.0_f64 / self.zoom;
+            // Convert to complex coordinates
+            let aspect_ratio = f64::from(image_rect.width()) / f64::from(image_rect.height());
+            let zoom_extent = 2.0_f64 / self.zoom;
 
-                let new_center_x = ((f64::from(norm_x) - 0.5_f64) * zoom_extent * aspect_ratio)
-                    .mul_add(2.0_f64, self.center.x);
-                let new_center_y =
-                    ((f64::from(norm_y) - 0.5_f64) * zoom_extent).mul_add(2.0_f64, self.center.y);
+            let new_center_x = ((f64::from(norm_x) - 0.5_f64) * zoom_extent * aspect_ratio)
+                .mul_add(2.0_f64, self.center.x);
+            let new_center_y =
+                ((f64::from(norm_y) - 0.5_f64) * zoom_extent).mul_add(2.0_f64, self.center.y);
 
-                self.center = Point::new(new_center_x, new_center_y);
-                self.zoom *= 2.0_f64;
-                self.needs_update = true;
-            }
+            self.center = Point::new(new_center_x, new_center_y);
+            self.zoom *= 2.0_f64;
+            self.needs_update = true;
         }
     }
 }

@@ -122,8 +122,8 @@ impl FractalType {
                 break;
             }
 
-            let temp = x2.sub(&y2).add(&cx);
-            y = T::two().mul(&x.abs()).mul(&y.abs()).add(&cy);
+            let temp = x2.sub(&y2).add(cx);
+            y = T::two().mul(&x.abs()).mul(&y.abs()).add(cy);
             x = temp;
             iterations += 1;
         }
