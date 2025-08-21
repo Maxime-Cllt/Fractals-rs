@@ -1,7 +1,7 @@
 use eframe::epaint::Color32;
 use std::f32::consts::PI;
 
-#[derive(Clone, Copy, PartialEq, Default)]
+#[derive(Clone,Debug, Copy, PartialEq, Default)]
 pub enum ColorScheme {
     #[default]
     Classic,

@@ -84,7 +84,7 @@ cargo test
 
 ### Benchmarks available
 
-To run benchmarks, use the following command:
+Benchmarks use the `criterion` crate for performance testing. To run benchmarks, use:
 
 ```bash
 cargo bench

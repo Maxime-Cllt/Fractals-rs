@@ -184,3 +184,25 @@ impl FractalApp {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default_fractal_app() {
+        let app = FractalApp::default();
+        assert_eq!(app.fractal_type, FractalType::Mandelbrot);
+        assert_eq!(app.max_iterations, 300);
+        assert_eq!(app.center, Point::new(-0.5, 0.0));
+        assert_eq!(app.zoom, 1.0);
+        assert_eq!(app.julia_c, Point::new(-0.7269, 0.1889));
+        assert!(app.needs_update);
+        assert!(app.texture.is_none());
+        assert_eq!(app.image_size, (800, 600));
+        assert!(!app.is_dragging);
+        assert!(!app.show_settings);
+        assert_eq!(app.precision_mode, PrecisionMode::Fast);
+        assert_eq!(app.color_scheme, ColorScheme::default());
+    }
+}

@@ -1,3 +1,5 @@
+/// This structure represents a point in a 2D space with `x` and `y` coordinates.
+#[derive(Debug, PartialEq)]
 pub struct Point {
     pub x: f64,
     pub y: f64,
