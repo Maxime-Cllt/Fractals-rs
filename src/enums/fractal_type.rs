@@ -2,7 +2,9 @@ use crate::enums::precision_mode::PrecisionMode;
 use crate::structs::point::Point;
 use crate::traits::fractal_float::FractalFloat;
 
-#[derive(Clone, Copy, PartialEq)]
+/// Represents the type of fractal to be generated.
+#[derive(Clone, Copy, Debug, PartialEq)]
+#[repr(u8)]
 pub enum FractalType {
     Mandelbrot,
     Julia,
@@ -121,8 +123,8 @@ impl FractalType {
                 break;
             }
 
-            let temp = x2.sub(&y2).add(&cx);
-            y = T::two().mul(&x.abs()).mul(&y.abs()).add(&cy);
+            let temp = x2.sub(&y2).add(cx);
+            y = T::two().mul(&x.abs()).mul(&y.abs()).add(cy);
             x = temp;
             iterations += 1;
         }
@@ -226,5 +228,27 @@ mod tests {
             PrecisionMode::Fast,
         );
         assert!(iterations > 0);
+    }
+
+    #[test]
+    fn test_fractal_type_name() {
+        assert_eq!(FractalType::Mandelbrot.name(), "Mandelbrot Set");
+        assert_eq!(FractalType::Julia.name(), "Julia Set");
+        assert_eq!(FractalType::BurningShip.name(), "Burning Ship");
+        assert_eq!(FractalType::Tricorn.name(), "Tricorn");
+    }
+
+    #[test]
+    fn test_fractal_type_default_center() {
+        assert_eq!(
+            FractalType::Mandelbrot.default_center(),
+            Point::new(-0.5, 0.0)
+        );
+        assert_eq!(FractalType::Julia.default_center(), Point::new(0.0, 0.0));
+        assert_eq!(
+            FractalType::BurningShip.default_center(),
+            Point::new(-0.5, -0.5)
+        );
+        assert_eq!(FractalType::Tricorn.default_center(), Point::new(0.0, 0.0));
     }
 }

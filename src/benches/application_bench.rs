@@ -2,10 +2,14 @@ use criterion::{criterion_group, criterion_main, Criterion};
 use fractals_rs::structs::point::Point;
 
 // Test parameters
+#[allow(unused)]
 const TEST_X: f64 = -0.5;
+#[allow(unused)]
 const TEST_Y: f64 = 0.5;
-const MAX_ITERATIONS: u16 = 1000;
 
+#[allow(unused)]
+const MAX_ITERATIONS: u16 = 1000;
+#[allow(unused)]
 fn benchmark_fractal_functions(c: &mut Criterion) {
     let mut group = c.benchmark_group("fractal_functions");
 
@@ -33,18 +37,21 @@ fn benchmark_fractal_functions(c: &mut Criterion) {
 use fractals_rs::enums::fractal_type::FractalType;
 use fractals_rs::enums::precision_mode::PrecisionMode;
 
+#[allow(unused)]
 fn mandelbrot_iterations(x: f64, y: f64, max_iter: u16) -> u16 {
     FractalType::Mandelbrot.iterations(x, y, max_iter, &Point::new(0.0, 0.0), PrecisionMode::Fast)
 }
 
+#[allow(unused)]
 fn julia_iterations(x: f64, y: f64, max_iter: u16, c: &Point) -> u16 {
     FractalType::Julia.iterations(x, y, max_iter, c, PrecisionMode::Fast)
 }
 
+#[allow(unused)]
 fn burning_ship_iterations(x: f64, y: f64, max_iter: u16) -> u16 {
     FractalType::BurningShip.iterations(x, y, max_iter, &Point::new(0.0, 0.0), PrecisionMode::Fast)
 }
-
+#[allow(unused)]
 fn tricorn_iterations(x: f64, y: f64, max_iter: u16) -> u16 {
     FractalType::Tricorn.iterations(x, y, max_iter, &Point::new(0.0, 0.0), PrecisionMode::Fast)
 }

@@ -1,20 +1,19 @@
 use crate::enums::fractal_type::FractalType;
+use crate::enums::precision_mode::PrecisionMode;
 use crate::structs::color_scheme::ColorScheme;
 use crate::structs::fractal_app::FractalApp;
 use crate::structs::point::Point;
 use eframe::emath::{Pos2, Rect, Vec2};
 use eframe::epaint::Color32;
 use egui::{ColorImage, TextureOptions};
-use crate::enums::precision_mode::PrecisionMode;
 
 impl eframe::App for FractalApp {
-
     /// Called to update the UI and handle events.
     #[inline]
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // Top menu bar
         egui::TopBottomPanel::top("menu_bar").show(ctx, |ui| {
-            egui::menu::bar(ui, |ui| {
+            egui::MenuBar::new().ui(ui, |ui| {
                 ui.menu_button("Fractal", |ui| {
                     for fractal_type in [
                         FractalType::Mandelbrot,
@@ -35,7 +34,7 @@ impl eframe::App for FractalApp {
                                 self.zoom = 1.0;
                                 self.needs_update = true;
                             }
-                            ui.close_menu();
+                            ui.close();
                         }
                     }
                 });
@@ -45,7 +44,7 @@ impl eframe::App for FractalApp {
                         self.center = self.fractal_type.default_center();
                         self.zoom = 1.0;
                         self.needs_update = true;
-                        ui.close_menu();
+                        ui.close();
                     }
 
                     ui.separator();
@@ -60,7 +59,7 @@ impl eframe::App for FractalApp {
                         {
                             self.color_scheme = color_scheme;
                             self.needs_update = true;
-                            ui.close_menu();
+                            ui.close();
                         }
                     }
                 });
@@ -68,7 +67,7 @@ impl eframe::App for FractalApp {
                 ui.menu_button("Settings", |ui| {
                     if ui.button("Show Control Panel").clicked() {
                         self.show_settings = !self.show_settings;
-                        ui.close_menu();
+                        ui.close();
                     }
                 });
 
@@ -138,7 +137,7 @@ impl eframe::App for FractalApp {
                                 self.needs_update = true;
                             }
                         });
-                        
+
                         // Change precision mode
                         ui.horizontal(|ui| {
                             ui.label("Precision Mode:");
@@ -262,7 +261,11 @@ impl eframe::App for FractalApp {
 
             if self.needs_update && self.image_size.0 > 0 && self.image_size.1 > 0 {
                 let image: ColorImage = self.generate_fractal_image();
-                self.texture = Some(ui.ctx().load_texture("fractal", image, TextureOptions::default()));
+                self.texture = Some(ui.ctx().load_texture(
+                    "fractal",
+                    image,
+                    TextureOptions::default(),
+                ));
                 self.needs_update = false;
             }
 
@@ -280,12 +283,12 @@ impl eframe::App for FractalApp {
                         self.center = self.fractal_type.default_center();
                         self.zoom = 1.0;
                         self.needs_update = true;
-                        ui.close_menu();
+                        ui.close();
                     }
 
                     if ui.button("Toggle Settings Panel").clicked() {
                         self.show_settings = !self.show_settings;
-                        ui.close_menu();
+                        ui.close();
                     }
 
                     ui.separator();

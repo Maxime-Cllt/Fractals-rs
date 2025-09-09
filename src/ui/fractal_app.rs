@@ -36,7 +36,7 @@ impl FractalApp {
         let height = self.image_size.1 as usize;
 
         if width == 0 || height == 0 {
-            return egui::ColorImage::new([1, 1], Color32::BLACK);
+            return egui::ColorImage::new([1, 1], vec![Color32::from_rgb(0, 0, 0); 1]);
         }
 
         let (x_scale, y_scale, x_min, y_min) = self.compute_scale();
@@ -162,25 +162,47 @@ impl FractalApp {
         }
 
         // Handle double-click to zoom in
-        if response.double_clicked() {
-            if let Some(click_pos) = response.interact_pointer_pos() {
-                let rel_pos = click_pos - image_rect.min;
-                let norm_x = rel_pos.x / image_rect.width();
-                let norm_y = rel_pos.y / image_rect.height();
+        if response.double_clicked()
+            && let Some(click_pos) = response.interact_pointer_pos()
+        {
+            let rel_pos = click_pos - image_rect.min;
+            let norm_x = rel_pos.x / image_rect.width();
+            let norm_y = rel_pos.y / image_rect.height();
 
-                // Convert to complex coordinates
-                let aspect_ratio = f64::from(image_rect.width()) / f64::from(image_rect.height());
-                let zoom_extent = 2.0_f64 / self.zoom;
+            // Convert to complex coordinates
+            let aspect_ratio = f64::from(image_rect.width()) / f64::from(image_rect.height());
+            let zoom_extent = 2.0_f64 / self.zoom;
 
-                let new_center_x = ((f64::from(norm_x) - 0.5_f64) * zoom_extent * aspect_ratio)
-                    .mul_add(2.0_f64, self.center.x);
-                let new_center_y =
-                    ((f64::from(norm_y) - 0.5_f64) * zoom_extent).mul_add(2.0_f64, self.center.y);
+            let new_center_x = ((f64::from(norm_x) - 0.5_f64) * zoom_extent * aspect_ratio)
+                .mul_add(2.0_f64, self.center.x);
+            let new_center_y =
+                ((f64::from(norm_y) - 0.5_f64) * zoom_extent).mul_add(2.0_f64, self.center.y);
 
-                self.center = Point::new(new_center_x, new_center_y);
-                self.zoom *= 2.0_f64;
-                self.needs_update = true;
-            }
+            self.center = Point::new(new_center_x, new_center_y);
+            self.zoom *= 2.0_f64;
+            self.needs_update = true;
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default_fractal_app() {
+        let app = FractalApp::default();
+        assert_eq!(app.fractal_type, FractalType::Mandelbrot);
+        assert_eq!(app.max_iterations, 300);
+        assert_eq!(app.center, Point::new(-0.5, 0.0));
+        assert_eq!(app.zoom, 1.0);
+        assert_eq!(app.julia_c, Point::new(-0.7269, 0.1889));
+        assert!(app.needs_update);
+        assert!(app.texture.is_none());
+        assert_eq!(app.image_size, (800, 600));
+        assert!(!app.is_dragging);
+        assert!(!app.show_settings);
+        assert_eq!(app.precision_mode, PrecisionMode::Fast);
+        assert_eq!(app.color_scheme, ColorScheme::default());
     }
 }

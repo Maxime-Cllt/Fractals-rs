@@ -3,6 +3,7 @@ use crate::enums::precision_mode::PrecisionMode;
 use crate::structs::color_scheme::ColorScheme;
 use crate::structs::point::Point;
 
+/// The main application state for the fractal viewer.
 pub struct FractalApp {
     pub fractal_type: FractalType,
     pub max_iterations: u16,

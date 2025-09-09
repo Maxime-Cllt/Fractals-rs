@@ -1,7 +1,9 @@
 use eframe::epaint::Color32;
 use std::f32::consts::PI;
 
-#[derive(Clone, Copy, PartialEq, Default)]
+#[derive(Clone, Debug, Copy, PartialEq, Default)]
+#[repr(u8)]
+/// Enum representing different color schemes for fractal rendering.
 pub enum ColorScheme {
     #[default]
     Classic,
