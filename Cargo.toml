@@ -49,17 +49,6 @@ strip = "symbols"
 rpath = false
 debug-assertions = false
 
-# Custom profile for maximum performance
-[profile.release-max]
-inherits = "release"
-opt-level = "z"
-lto = "fat"
-codegen-units = 1
-panic = "abort"
-strip = "symbols"
-overflow-checks = false
-debug-assertions = false
-
 
 # Profile for profiling/benchmarking
 [profile.bench]
