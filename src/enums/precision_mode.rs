@@ -1,5 +1,6 @@
 /// Enum representing different precision modes for numerical computations.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(u8)]
 pub enum PrecisionMode {
     Fast, // f32
     High, // f64

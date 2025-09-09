@@ -4,6 +4,7 @@ use crate::traits::fractal_float::FractalFloat;
 
 /// Represents the type of fractal to be generated.
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[repr(u8)]
 pub enum FractalType {
     Mandelbrot,
     Julia,

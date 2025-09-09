@@ -36,7 +36,7 @@ impl FractalApp {
         let height = self.image_size.1 as usize;
 
         if width == 0 || height == 0 {
-            return egui::ColorImage::new([1, 1], Color32::BLACK);
+            return egui::ColorImage::new([1, 1], vec![Color32::from_rgb(0, 0, 0); 1]);
         }
 
         let (x_scale, y_scale, x_min, y_min) = self.compute_scale();
