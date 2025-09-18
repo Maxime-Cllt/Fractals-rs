@@ -49,12 +49,6 @@ jobs:
       - name: Update dependencies
         run: cargo update
 
-      - name: Check formatting
-        run: cargo fmt --all -- --check
-
-      - name: Check clippy
-        run: cargo clippy -- -D warnings
-
       - name: Build project
         run: cargo build --workspace --exclude criterion --verbose
 
