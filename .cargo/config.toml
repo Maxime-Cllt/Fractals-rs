@@ -1,8 +1,6 @@
 [build]
 rustflags = [
     "-C", "target-feature=+crt-static",
-    "-C", "prefer-dynamic=no",
-    "-C", "embed-bitcode=no",
 ]
 
 # Linux x86_64 - targets CPUs from ~2009+
