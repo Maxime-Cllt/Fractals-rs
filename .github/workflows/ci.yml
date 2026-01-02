@@ -25,8 +25,14 @@ env:
 
 jobs:
   check:
-    name: Check, Build and Test
+    name: Check, Build and Test (${{ matrix.features }})
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        features:
+          - "default"
+          - "f128"
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
@@ -37,11 +43,29 @@ jobs:
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2
         with:
-          # Cache key based on Cargo.lock and source files
-          key: ${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/*.rs') }}
+          # Cache key based on Cargo.lock, source files, and features
+          key: ${{ matrix.features }}-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/*.rs') }}
 
-      - name: Build project
+      - name: Build project (default features)
+        if: matrix.features == 'default'
         run: cargo build --workspace --verbose
 
-      - name: Run tests
-        run: cargo test --all-features --workspace --verbose
+      - name: Build project (with f128)
+        if: matrix.features == 'f128'
+        run: cargo build --workspace --features f128 --verbose
+
+      - name: Run tests (default features)
+        if: matrix.features == 'default'
+        run: cargo test --workspace --verbose
+
+      - name: Run tests (with f128)
+        if: matrix.features == 'f128'
+        run: cargo test --workspace --features f128 --verbose
+
+      - name: Check formatting
+        if: matrix.features == 'default'
+        run: cargo fmt --all -- --check
+
+      - name: Run clippy
+        if: matrix.features == 'default'
+        run: cargo clippy --workspace -- -D warnings

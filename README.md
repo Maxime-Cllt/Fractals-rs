@@ -81,6 +81,37 @@ To enable float128 features :
 cargo run --release --features f128
 ```
 
+## 📦 Download Pre-built Binaries
+
+Pre-built binaries are available for each release in **two variants**:
+
+### Standard Version
+- **File naming**: `Fractals-rs-{platform}`
+- **Features**: f32 and f64 precision modes
+- **Performance**: Faster rendering, smaller file size
+- **Use case**: General fractal exploration with excellent quality
+- **Recommended for**: Most users
+
+### F128 Version (Ultra-High Precision)
+- **File naming**: `Fractals-rs-{platform}-f128`
+- **Features**: f32, f64, and **f128** (128-bit decimal) precision modes
+- **Performance**: Slower rendering, larger file size
+- **Use case**: Extreme zoom levels (beyond 10^15) requiring maximum precision
+- **Recommended for**: Advanced users, deep zoom enthusiasts, scientific visualization
+
+### Which version should I choose?
+
+- **Standard**: Perfect for 99% of use cases. Supports zooms up to 10^15 with excellent quality.
+- **F128**: Only needed for extreme deep zooms beyond standard floating-point limits. Provides arbitrary precision at the cost of performance.
+
+### Platform Downloads
+
+The release artifacts follow this naming convention:
+- Windows x64: `Fractals-rs-x86_64-pc-windows-msvc.exe` (standard) / `Fractals-rs-x86_64-pc-windows-msvc-f128.exe` (f128)
+- Windows ARM64: `Fractals-rs-aarch64-pc-windows-msvc.exe` (standard) / `Fractals-rs-aarch64-pc-windows-msvc-f128.exe` (f128)
+- macOS Intel: `Fractals-rs-x86_64-apple-darwin` (standard) / `Fractals-rs-x86_64-apple-darwin-f128` (f128)
+- macOS Apple Silicon: `Fractals-rs-aarch64-apple-darwin` (standard) / `Fractals-rs-aarch64-apple-darwin-f128` (f128)
+
 ## 🧪 Code Quality
 
 ### Unit Tests available
