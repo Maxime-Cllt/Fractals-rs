@@ -2,22 +2,21 @@ name: Rust CI
 
 on:
   push:
-    branches: [ "main" , "master"]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'LICENSE*'
-      - '.gitignore'
-      - '.github/dependabot.yml'
-      - 'images/**'
+    branches: [ "main" , "master" ]
+    paths:
+      - '**.rs'
+      - '**.toml'
+      - '**.lock'
+      - '.github/**'
+      - 'build/**'
   pull_request:
-    branches: [ "main" , "master"]
-    paths-ignore:
-      - '**.md'
-      - 'LICENSE*'
-      - '.gitignore'
-      - '.github/dependabot.yml'
-      - 'assets/**'
+    branches: [ "main" , "master" ]
+    paths:
+      - '**.rs'
+      - '**.toml'
+      - '**.lock'
+      - '.github/**'
+      - 'build/**'
   workflow_dispatch:
 
 env:
@@ -34,8 +33,6 @@ jobs:
 
       - name: Install stable toolchain
         uses: dtolnay/rust-toolchain@stable
-        with:
-          components: rustfmt, clippy
 
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2

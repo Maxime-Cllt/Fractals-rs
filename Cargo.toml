@@ -1,6 +1,6 @@
 [package]
 name = "Fractals-rs"
-version = "1.0.2"
+version = "1.0.3"
 edition = "2024"
 description = "A simple fractal viewer written in Rust using eframe and egui"
 keywords = ["fractals", "egui", "eframe", "rust", "gui"]

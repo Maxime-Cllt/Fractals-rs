@@ -96,7 +96,6 @@ impl FractalFloat for f64 {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;

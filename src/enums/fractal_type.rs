@@ -168,7 +168,6 @@ impl FractalType {
 
     /// Returns the default center point for the fractal type
     #[inline]
-    #[must_use]
     pub const fn default_center(&self) -> Point {
         match self {
             Self::Mandelbrot => Point::new(-0.5, 0.0),

@@ -1,10 +1,12 @@
-use eframe::{egui, NativeOptions};
+use eframe::{NativeOptions, egui};
 use egui::IconData;
 use fractals_rs::constant::{HEIGHT, WIDTH};
 use fractals_rs::structs::fractal_app::FractalApp;
 
 #[cfg(test)]
 mod benches;
+
+const APP_ICON: &[u8] = include_bytes!("../assets/fractale.png");
 
 fn main() -> Result<(), eframe::Error> {
     let icon_data: Result<IconData, eframe::Error> = load_icon();
@@ -32,8 +34,7 @@ fn main() -> Result<(), eframe::Error> {
 
 fn load_icon() -> Result<IconData, eframe::Error> {
     let (icon_rgba, icon_width, icon_height) = {
-        let icon = include_bytes!("../assets/fractale.png");
-        let image = image::load_from_memory(icon)
+        let image = image::load_from_memory(APP_ICON)
             .expect("Failed to open icon path")
             .into_rgba8();
         let (width, height) = image.dimensions();

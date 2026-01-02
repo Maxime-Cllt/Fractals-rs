@@ -233,8 +233,8 @@ impl eframe::App for FractalApp {
                         ui.monospace(format!("Zoom: {:.2e}", self.zoom));
                         ui.monospace(format!("Fractal: {}", self.fractal_type.name()));
                         ui.monospace(format!(
-                            "Resolution: {}",
-                            format!("{}x{}", self.image_size.0, self.image_size.1)
+                            "Resolution: {}x{}",
+                            self.image_size.0, self.image_size.1
                         ));
                     });
 
