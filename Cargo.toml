@@ -18,9 +18,17 @@ eframe = { version = "0.33.3", default-features = false, features = ["default_fo
 egui = { version = "0.33.3", default-features = false, features = ["default_fonts"] }
 rayon = "1.11.0"
 image = { version = "0.25.8", default-features = false, features = ["png", "jpeg"] }
+rust_decimal = { version = "1.39.0", optional = true }
+rust_decimal_macros = { version = "1.39.0", optional = true }
+paste = "1.0"
+wide = "0.7"
 
 [dev-dependencies]
 criterion = "0.8.1"
+
+[features]
+default = [] # Default feature
+f128 = ["rust_decimal", "rust_decimal_macros"] # Feature to enable f128 precision
 
 [profile.dev]
 opt-level = 0
