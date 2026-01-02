@@ -57,6 +57,26 @@ impl FractalType {
                     fractal_kernels::tricorn_iterations_f64(cx, cy, max_iteration)
                 }
             },
+            #[cfg(feature = "f128")]
+            PrecisionMode::UltraHigh => {
+                use rust_decimal::Decimal;
+                let cx_dec = Decimal::from_f64_retain(cx).unwrap_or(Decimal::ZERO);
+                let cy_dec = Decimal::from_f64_retain(cy).unwrap_or(Decimal::ZERO);
+                match self {
+                    Self::Mandelbrot => {
+                        fractal_kernels::mandelbrot_iterations_f128(cx_dec, cy_dec, max_iteration)
+                    }
+                    Self::Julia => {
+                        fractal_kernels::julia_iterations_f128(cx_dec, cy_dec, max_iteration, julia_c)
+                    }
+                    Self::BurningShip => {
+                        fractal_kernels::burning_ship_iterations_f128(cx_dec, cy_dec, max_iteration)
+                    }
+                    Self::Tricorn => {
+                        fractal_kernels::tricorn_iterations_f128(cx_dec, cy_dec, max_iteration)
+                    }
+                }
+            }
         }
     }
 

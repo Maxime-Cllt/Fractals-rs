@@ -189,10 +189,10 @@ impl eframe::App for FractalApp {
 
                     if self.fractal_type == FractalType::Julia {
                         ui.add_space(8.0);
-                        egui::Frame::none()
+                        egui::Frame::NONE
                             .fill(ui.visuals().extreme_bg_color)
                             .inner_margin(10.0)
-                            .rounding(6.0)
+                            .corner_radius(6.0)
                             .show(ui, |ui| {
                             ui.label(egui::RichText::new("🌀 Julia Parameters").size(14.0).strong());
                             ui.add_space(6.0);

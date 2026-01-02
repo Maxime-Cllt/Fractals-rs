@@ -207,6 +207,27 @@ impl FractalApp {
                             x += 1;
                         }
                     }
+                    #[cfg(feature = "f128")]
+                    PrecisionMode::UltraHigh => {
+                        // Ultra-high precision mode using Decimal (f128)
+                        // No SIMD optimization, but extreme precision for deep zoom
+                        for x in 0..width {
+                            let cx = (x as f64).mul_add(x_scale, x_min);
+                            let iterations = self.fractal_type.iterations(
+                                cx,
+                                cy,
+                                self.max_iterations,
+                                &self.julia_c,
+                                self.precision_mode,
+                            );
+                            let color = self.color_scheme.to_color32(iterations, self.max_iterations);
+                            let pixel_idx = x * 4;
+                            row_chunk[pixel_idx] = color.r();
+                            row_chunk[pixel_idx + 1] = color.g();
+                            row_chunk[pixel_idx + 2] = color.b();
+                            row_chunk[pixel_idx + 3] = color.a();
+                        }
+                    }
                 }
             });
 

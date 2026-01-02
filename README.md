@@ -9,13 +9,14 @@
 
 
 <p align="center">
-  <img width="300px" height="250px" src="assets/mandelbrot.png" alt="Fractal" />
-  <img width="300px" height="250px" src="assets/mandelbrot-psy.png" alt="Fractal" />
-  <img width="300px" height="250px" src="assets/julia.png" alt="Fractal" />
-  <img width="300px" height="250px" src="assets/spiral.png" alt="Fractal" />
-  <img width="300px" height="250px" src="assets/tricorn.png" alt="Fractal" />
-  <img width="300px" height="250px" src="assets/dendrite.png" alt="Fractal" />
-  <img width="300px" height="250px" src="assets/bs.png" alt="Fractal" />
+  <img width="400px" height="200px" src="assets/mandelbrot.png" alt="Fractal" />
+  <img width="400px" height="200px" src="assets/mandelbrot-psy.png" alt="Fractal" />
+  <img width="400px" height="200px" src="assets/julia.png" alt="Fractal" />
+  <img width="400px" height="250px" src="assets/spiral.png" alt="Fractal" />
+  <img width="300px" height="200px" src="assets/tricorn.png" alt="Fractal" />
+  <img width="400px" height="200px" src="assets/dendrite.png" alt="Fractal" />
+  <img width="400px" height="200px" src="assets/bs.png" alt="Fractal" />
+  <img width="400px" height="200px" src="assets/snow.png" alt="Fractal" />
 </p>
 
 ## 📖 Overview
@@ -37,7 +38,7 @@ mathematical fractals including the Mandelbrot set, Julia sets, and more.
     - Real-time parameter adjustment
     - Color palette customization
 - **High Performance**: Multi-threaded rendering
-- **Precision Control**: Adjustable precision between float64 and float32
+- **Precision Control**: Adjustable precision between float32, float64 and float128
 
 ## 💻 Platform Support
 
@@ -70,6 +71,14 @@ git clone https://github.com/Maxime-Cllt/Fractals-rs.git
 
 ```bash
 cargo run --release
+```
+
+### Float 128 Support
+
+To enable float128 features :
+
+```bash
+cargo run --release --features f128
 ```
 
 ## 🧪 Code Quality

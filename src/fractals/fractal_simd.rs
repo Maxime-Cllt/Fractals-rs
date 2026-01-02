@@ -64,7 +64,7 @@ pub fn mandelbrot_simd_f32(cx: &[f32; 4], cy: &[f32; 4], max_iteration: u16) -> 
         let magnitude_sq = zr2 + zi2;
 
         // Check escape condition for each pixel
-        let mag_arr = magnitude_sq.as_array_ref();
+        let mag_arr = magnitude_sq.as_array();
         for i in 0..4 {
             if active_mask[i] && mag_arr[i] > 4.0 {
                 iterations[i] = iter;
@@ -132,7 +132,7 @@ pub fn mandelbrot_simd_f64(cx: &[f64; 2], cy: &[f64; 2], max_iteration: u16) -> 
         let zi2 = zi * zi;
         let magnitude_sq = zr2 + zi2;
 
-        let mag_arr = magnitude_sq.as_array_ref();
+        let mag_arr = magnitude_sq.as_array();
         for i in 0..2 {
             if active_mask[i] && mag_arr[i] > 4.0 {
                 iterations[i] = iter;
@@ -188,7 +188,7 @@ pub fn julia_simd_f32(
         let y2 = y * y;
         let magnitude_sq = x2 + y2;
 
-        let mag_arr = magnitude_sq.as_array_ref();
+        let mag_arr = magnitude_sq.as_array();
         for i in 0..4 {
             if active_mask[i] && mag_arr[i] > 4.0 {
                 iterations[i] = iter;
@@ -239,7 +239,7 @@ pub fn julia_simd_f64(
         let y2 = y * y;
         let magnitude_sq = x2 + y2;
 
-        let mag_arr = magnitude_sq.as_array_ref();
+        let mag_arr = magnitude_sq.as_array();
         for i in 0..2 {
             if active_mask[i] && mag_arr[i] > 4.0 {
                 iterations[i] = iter;
@@ -287,7 +287,7 @@ pub fn burning_ship_simd_f32(cx: &[f32; 4], cy: &[f32; 4], max_iteration: u16) -
         let y2 = y * y;
         let magnitude_sq = x2 + y2;
 
-        let mag_arr = magnitude_sq.as_array_ref();
+        let mag_arr = magnitude_sq.as_array();
         for i in 0..4 {
             if active_mask[i] && mag_arr[i] > 4.0 {
                 iterations[i] = iter;
@@ -332,7 +332,7 @@ pub fn burning_ship_simd_f64(cx: &[f64; 2], cy: &[f64; 2], max_iteration: u16) -
         let y2 = y * y;
         let magnitude_sq = x2 + y2;
 
-        let mag_arr = magnitude_sq.as_array_ref();
+        let mag_arr = magnitude_sq.as_array();
         for i in 0..2 {
             if active_mask[i] && mag_arr[i] > 4.0 {
                 iterations[i] = iter;
@@ -380,7 +380,7 @@ pub fn tricorn_simd_f32(cx: &[f32; 4], cy: &[f32; 4], max_iteration: u16) -> [u1
         let y2 = y * y;
         let magnitude_sq = x2 + y2;
 
-        let mag_arr = magnitude_sq.as_array_ref();
+        let mag_arr = magnitude_sq.as_array();
         for i in 0..4 {
             if active_mask[i] && mag_arr[i] > 4.0 {
                 iterations[i] = iter;
@@ -425,7 +425,7 @@ pub fn tricorn_simd_f64(cx: &[f64; 2], cy: &[f64; 2], max_iteration: u16) -> [u1
         let y2 = y * y;
         let magnitude_sq = x2 + y2;
 
-        let mag_arr = magnitude_sq.as_array_ref();
+        let mag_arr = magnitude_sq.as_array();
         for i in 0..2 {
             if active_mask[i] && mag_arr[i] > 4.0 {
                 iterations[i] = iter;

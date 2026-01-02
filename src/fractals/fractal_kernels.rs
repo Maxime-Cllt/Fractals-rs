@@ -3,6 +3,11 @@
 
 use crate::utils::point::Point;
 
+#[cfg(feature = "f128")]
+use rust_decimal::Decimal;
+#[cfg(feature = "f128")]
+use rust_decimal_macros::dec;
+
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
@@ -624,6 +629,133 @@ pub fn tricorn_iterations_f64(cx: f64, cy: f64, max_iteration: u16) -> u16 {
     iterations
 }
 
+// ============================================================================
+// F128 (DECIMAL) KERNELS - Ultra High Precision
+// ============================================================================
+
+#[cfg(feature = "f128")]
+/// Check if a point is in the main cardioid or period-2 bulb of the Mandelbrot set (f128 version).
+#[inline(always)]
+fn mandelbrot_early_out_f128(cx: Decimal, cy: Decimal) -> bool {
+    let quarter = dec!(0.25);
+    let one = Decimal::ONE;
+    let x_offset = cx - quarter;
+    let q = x_offset * x_offset + cy * cy;
+    if q * (q + x_offset) < quarter * cy * cy {
+        return true;
+    }
+
+    let x_plus_one = cx + one;
+    if x_plus_one * x_plus_one + cy * cy < dec!(0.0625) {
+        return true;
+    }
+
+    false
+}
+
+#[cfg(feature = "f128")]
+/// Mandelbrot iteration kernel for f128 (Decimal) precision.
+/// Uses 128-bit decimal arithmetic for extreme zoom levels.
+#[inline(always)]
+pub fn mandelbrot_iterations_f128(cx: Decimal, cy: Decimal, max_iteration: u16) -> u16 {
+    if mandelbrot_early_out_f128(cx, cy) {
+        return max_iteration;
+    }
+
+    let mut zr = Decimal::ZERO;
+    let mut zi = Decimal::ZERO;
+    let mut iterations = 0u16;
+    let four = dec!(4);
+
+    while iterations < max_iteration {
+        let zr2 = zr * zr;
+        let zi2 = zi * zi;
+        if zr2 + zi2 > four {
+            break;
+        }
+        let new_zr = zr2 - zi2 + cx;
+        zi = dec!(2) * zr * zi + cy;
+        zr = new_zr;
+        iterations += 1;
+    }
+
+    iterations
+}
+
+#[cfg(feature = "f128")]
+/// Julia set iteration kernel for f128 (Decimal) precision.
+#[inline(always)]
+pub fn julia_iterations_f128(zx: Decimal, zy: Decimal, max_iteration: u16, c: &Point) -> u16 {
+    let mut x = zx;
+    let mut y = zy;
+    let mut iterations = 0u16;
+    let cx = Decimal::from_f64_retain(c.x).unwrap_or(Decimal::ZERO);
+    let cy = Decimal::from_f64_retain(c.y).unwrap_or(Decimal::ZERO);
+    let four = dec!(4);
+
+    while iterations < max_iteration {
+        let x2 = x * x;
+        let y2 = y * y;
+        if x2 + y2 > four {
+            break;
+        }
+        let new_y = dec!(2) * x * y + cy;
+        x = x2 - y2 + cx;
+        y = new_y;
+        iterations += 1;
+    }
+
+    iterations
+}
+
+#[cfg(feature = "f128")]
+/// Burning Ship iteration kernel for f128 (Decimal) precision.
+#[inline(always)]
+pub fn burning_ship_iterations_f128(cx: Decimal, cy: Decimal, max_iteration: u16) -> u16 {
+    let mut x = Decimal::ZERO;
+    let mut y = Decimal::ZERO;
+    let mut iterations = 0u16;
+    let four = dec!(4);
+
+    while iterations < max_iteration {
+        let x2 = x * x;
+        let y2 = y * y;
+        if x2 + y2 > four {
+            break;
+        }
+        let temp = x2 - y2 + cx;
+        y = dec!(2) * x.abs() * y.abs() + cy;
+        x = temp;
+        iterations += 1;
+    }
+
+    iterations
+}
+
+#[cfg(feature = "f128")]
+/// Tricorn iteration kernel for f128 (Decimal) precision.
+#[inline(always)]
+pub fn tricorn_iterations_f128(cx: Decimal, cy: Decimal, max_iteration: u16) -> u16 {
+    let mut x = Decimal::ZERO;
+    let mut y = Decimal::ZERO;
+    let mut iterations = 0u16;
+    let four = dec!(4);
+
+    while iterations < max_iteration {
+        let x2 = x * x;
+        let y2 = y * y;
+        if x2 + y2 > four {
+            break;
+        }
+        let temp = x2 - y2 + cx;
+        y = dec!(-2) * x * y + cy;
+        x = temp;
+        iterations += 1;
+    }
+
+    iterations
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -663,6 +795,39 @@ mod tests {
     #[test]
     fn test_tricorn_f32() {
         let iterations = tricorn_iterations_f32(0.0, 0.0, 1000);
+        assert!(iterations > 0);
+    }
+
+    #[cfg(feature = "f128")]
+    #[test]
+    fn test_mandelbrot_f128() {
+        use rust_decimal::Decimal;
+        let iterations = mandelbrot_iterations_f128(Decimal::ZERO, Decimal::ZERO, 1000);
+        assert!(iterations > 0);
+    }
+
+    #[cfg(feature = "f128")]
+    #[test]
+    fn test_julia_f128() {
+        use rust_decimal::Decimal;
+        let c = Point::new(0.355, 0.355);
+        let iterations = julia_iterations_f128(Decimal::ZERO, Decimal::ZERO, 1000, &c);
+        assert!(iterations > 0);
+    }
+
+    #[cfg(feature = "f128")]
+    #[test]
+    fn test_burning_ship_f128() {
+        use rust_decimal::Decimal;
+        let iterations = burning_ship_iterations_f128(Decimal::ZERO, Decimal::ZERO, 1000);
+        assert!(iterations > 0);
+    }
+
+    #[cfg(feature = "f128")]
+    #[test]
+    fn test_tricorn_f128() {
+        use rust_decimal::Decimal;
+        let iterations = tricorn_iterations_f128(Decimal::ZERO, Decimal::ZERO, 1000);
         assert!(iterations > 0);
     }
 }

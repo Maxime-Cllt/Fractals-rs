@@ -31,6 +31,11 @@ pub enum ColorScheme {
     MidnightStars,
     CherryBlossom,
     QuantumPlasma,
+    OpalDreams,
+    DragonFire,
+    AmethystCavern,
+    SakuraRain,
+    ElectricStorm,
 }
 
 impl ColorScheme {
@@ -63,12 +68,17 @@ impl ColorScheme {
             Self::MidnightStars => "Midnight Stars",
             Self::CherryBlossom => "Cherry Blossom",
             Self::QuantumPlasma => "Quantum Plasma",
+            Self::OpalDreams => "Opal Dreams",
+            Self::DragonFire => "Dragon Fire",
+            Self::AmethystCavern => "Amethyst Cavern",
+            Self::SakuraRain => "Sakura Rain",
+            Self::ElectricStorm => "Electric Storm",
         }
     }
 
     /// Returns all available color schemes.
     #[inline]
-    pub const fn all() -> [Self; 25] {
+    pub const fn all() -> [Self; 30] {
         [
             Self::Classic,
             Self::Hot,
@@ -95,6 +105,11 @@ impl ColorScheme {
             Self::MidnightStars,
             Self::CherryBlossom,
             Self::QuantumPlasma,
+            Self::OpalDreams,
+            Self::DragonFire,
+            Self::AmethystCavern,
+            Self::SakuraRain,
+            Self::ElectricStorm,
         ]
     }
 
@@ -136,6 +151,19 @@ impl ColorScheme {
 }
 
 impl ColorScheme {
+    /// Enhanced smooth coloring function for ultra-high quality rendering
+    /// Uses multiple smoothing techniques for elimination of color banding
+    #[inline]
+    fn ultra_smooth(t: f32) -> f32 {
+        // Triple smoothing for maximum quality
+        let smooth1 = t.sqrt();
+        let smooth2 = smooth1.sqrt();
+        let smooth3 = Self::smooth_step(0.0, 1.0, smooth1);
+
+        // Blend different smoothing techniques
+        smooth1 * 0.5 + smooth2 * 0.3 + smooth3 * 0.2
+    }
+
     /// Converts the number of iterations to a color based on the color scheme.
     #[inline]
     #[must_use]
@@ -145,7 +173,9 @@ impl ColorScheme {
         }
 
         let t: f32 = f32::from(iterations) / f32::from(max_iterations);
-        let smoothed: f32 = t.sqrt();
+
+        // Use ultra-smooth algorithm for better quality
+        let smoothed: f32 = Self::ultra_smooth(t);
 
         match self {
             Self::Classic => {
@@ -623,6 +653,137 @@ impl ColorScheme {
                 let r = (100.0 + 155.0 * violet * intensity) as u8;
                 let g = (80.0 + 100.0 * electric * intensity) as u8;
                 let b = (200.0 + 55.0 * (electric + violet) * 0.5) as u8;
+                Color32::from_rgb(r, g, b)
+            }
+
+            Self::OpalDreams => {
+                // Iridescent opal with rainbow shimmer and pearlescent quality
+                let iridescence = smoothed.powf(0.65);
+                let shimmer1 = (iridescence * 10.0 * PI).sin();
+                let shimmer2 = (iridescence * 7.0 * PI + 1.5).sin();
+                let shimmer3 = (iridescence * 13.0 * PI + 3.0).sin();
+                let pearl = (iridescence * 20.0 * PI).cos().abs() * 0.3 + 0.7;
+                let depth = Self::smooth_step(0.0, 1.0, iridescence);
+
+                // Opal shows multiple colors depending on angle
+                let cyan_fire = (0.5 + 0.5 * shimmer1) * pearl;
+                let pink_fire = (0.5 + 0.5 * shimmer2) * pearl;
+                let gold_fire = (0.5 + 0.5 * shimmer3) * pearl;
+
+                let r = (180.0 + 75.0 * pink_fire * depth) as u8;
+                let g = (160.0 + 95.0 * (cyan_fire + gold_fire) * 0.5 * depth) as u8;
+                let b = (200.0 + 55.0 * cyan_fire * depth) as u8;
+                Color32::from_rgb(r, g, b)
+            }
+
+            Self::DragonFire => {
+                // Mythical dragon breath - intense, magical fire
+                let flame = smoothed.powf(0.55);
+                let magic = (flame * 8.0 * PI).sin().abs();
+                let intensity = (flame * 15.0 * PI).cos() * 0.5 + 0.5;
+                let dragon_energy = (flame * 20.0 * PI).sin() * 0.1 + 0.9;
+                let core = Self::smooth_step(0.2, 0.8, flame);
+
+                if flame < 0.2 {
+                    // Deep ember with dragon magic
+                    let t = flame / 0.2;
+                    let r = (60.0 + 140.0 * t * magic) as u8;
+                    let g = (10.0 + 30.0 * t) as u8;
+                    let b = (80.0 + 60.0 * t * magic) as u8; // Purple hint
+                    Color32::from_rgb(r, g, b)
+                } else if flame < 0.5 {
+                    // Red-violet dragon fire
+                    let t = (flame - 0.2) / 0.3;
+                    let smooth_t = Self::smooth_step(0.0, 1.0, t);
+                    let r = (200.0 + 55.0 * smooth_t * dragon_energy) as u8;
+                    let g = (40.0 + 60.0 * smooth_t * magic) as u8;
+                    let b = (140.0 + 50.0 * smooth_t * intensity) as u8;
+                    Color32::from_rgb(r, g, b)
+                } else if flame < 0.75 {
+                    // Orange-gold magical flame
+                    let t = (flame - 0.5) / 0.25;
+                    let smooth_t = Self::smooth_step(0.0, 1.0, t);
+                    let r = 255;
+                    let g = (100.0 + 130.0 * smooth_t * dragon_energy) as u8;
+                    let b = (190.0 - 100.0 * smooth_t + 50.0 * magic) as u8;
+                    Color32::from_rgb(r, g, b)
+                } else {
+                    // White-hot dragon core with spectral edge
+                    let t = (flame - 0.75) / 0.25;
+                    let smooth_t = Self::smooth_step(0.0, 1.0, t);
+                    let r = 255;
+                    let g = (230.0 + 25.0 * smooth_t) as u8;
+                    let b = (140.0 + 115.0 * smooth_t * core) as u8;
+                    Color32::from_rgb(r, g, b)
+                }
+            }
+
+            Self::AmethystCavern => {
+                // Deep purple crystal cavern with luminous veins
+                let crystal_depth = smoothed.powf(1.3);
+                let facets = (crystal_depth * 9.0 * PI).sin().abs();
+                let luminescence = (crystal_depth * 6.0 * PI).cos() * 0.5 + 0.5;
+                let veins = (crystal_depth * 25.0 * PI).sin();
+                let glow = if veins > 0.85 { (veins - 0.85) * 6.0 } else { 0.0 };
+
+                let purple_depth = crystal_depth.sqrt();
+                let violet_light = facets * luminescence;
+
+                let r = (80.0 + 120.0 * purple_depth * violet_light + 150.0 * glow) as u8;
+                let g = (30.0 + 50.0 * luminescence + 140.0 * glow) as u8;
+                let b = (140.0 + 115.0 * purple_depth * facets + 100.0 * glow) as u8;
+                Color32::from_rgb(r, g, b)
+            }
+
+            Self::SakuraRain => {
+                // Gentle cherry blossom petals falling through misty air
+                let fall = smoothed.powf(0.7);
+                let petals = (fall * 8.0 * PI).sin() * 0.5 + 0.5;
+                let mist = (fall * 4.0 * PI).cos().abs();
+                let breeze = (fall * 12.0 * PI).sin() * 0.1 + 0.9;
+                let soft = Self::smooth_step(0.0, 1.0, fall);
+
+                if fall < 0.3 {
+                    // Misty dawn - soft blues and pinks
+                    let t = fall / 0.3;
+                    let r = (180.0 + 60.0 * t * petals) as u8;
+                    let g = (190.0 + 50.0 * t * mist) as u8;
+                    let b = (220.0 + 25.0 * t * breeze) as u8;
+                    Color32::from_rgb(r, g, b)
+                } else if fall < 0.7 {
+                    // Sakura bloom - delicate pink
+                    let t = (fall - 0.3) / 0.4;
+                    let smooth_t = Self::smooth_step(0.0, 1.0, t);
+                    let r = (240.0 + 15.0 * smooth_t * petals) as u8;
+                    let g = (180.0 + 40.0 * smooth_t * mist) as u8;
+                    let b = (200.0 + 30.0 * smooth_t * soft) as u8;
+                    Color32::from_rgb(r, g, b)
+                } else {
+                    // Bright sky through petals
+                    let t = (fall - 0.7) / 0.3;
+                    let smooth_t = Self::smooth_step(0.0, 1.0, t);
+                    let r = 255;
+                    let g = (220.0 + 35.0 * smooth_t) as u8;
+                    let b = (230.0 + 25.0 * smooth_t * breeze) as u8;
+                    Color32::from_rgb(r, g, b)
+                }
+            }
+
+            Self::ElectricStorm => {
+                // Violent lightning storm with thunder clouds
+                let storm = smoothed.powf(0.6);
+                let lightning = (storm * 30.0 * PI).sin();
+                let bolt = if lightning > 0.96 { (lightning - 0.96) * 25.0 } else { 0.0 };
+                let rain = (storm * 15.0 * PI).sin() * 0.5 + 0.5;
+                let charge = Self::smooth_step(0.0, 1.0, storm);
+
+                // Dark storm clouds with brilliant lightning
+                let electric_blue = charge * rain;
+                let voltage = bolt;
+
+                let r = (40.0 + 60.0 * electric_blue + 215.0 * voltage) as u8;
+                let g = (30.0 + 100.0 * charge * rain + 215.0 * voltage) as u8;
+                let b = (60.0 + 140.0 * electric_blue + 195.0 * voltage) as u8;
                 Color32::from_rgb(r, g, b)
             }
         }
