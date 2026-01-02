@@ -149,68 +149,129 @@ impl ColorScheme {
 
         match self {
             Self::Classic => {
-                let r: u8 = (255.0 * (0.5 + 0.5 * (4.0 * smoothed).sin())) as u8;
-                let g: u8 = (255.0 * (0.5 + 0.5 * (2.0 * smoothed + 2.0).sin())) as u8;
-                let b: u8 = (255.0 * (1.0 - smoothed).powf(0.3)) as u8;
+                // Refined classic palette with better color harmony
+                let wave1 = (smoothed * 6.0 * PI).sin();
+                let wave2 = (smoothed * 4.0 * PI + 1.0).sin();
+                let depth = smoothed.powf(0.7);
+
+                let r: u8 = (128.0 + 127.0 * wave1 * depth) as u8;
+                let g: u8 = (100.0 + 155.0 * wave2 * (1.0 - depth * 0.5)) as u8;
+                let b: u8 = (180.0 + 75.0 * (1.0 - depth).powf(0.4)) as u8;
                 Color32::from_rgb(r, g, b)
             }
             Self::Hot => {
-                if smoothed < 0.25 {
-                    let t: f32 = smoothed * 4.0;
-                    Color32::from_rgb((80.0 + 175.0 * t) as u8, (20.0 * t) as u8, 0)
-                } else if smoothed < 0.5 {
-                    let t: f32 = (smoothed - 0.25) * 4.0;
-                    Color32::from_rgb(255, (20.0 + 235.0 * t) as u8, 0)
-                } else if smoothed < 0.75 {
-                    let t: f32 = (smoothed - 0.5) * 4.0;
-                    Color32::from_rgb(255, 255, (200.0 * t) as u8)
+                // Enhanced hot palette with realistic heat gradients
+                let heat = smoothed.powf(0.65);
+                let flicker = (smoothed * 12.0 * PI).sin() * 0.03 + 0.97;
+
+                if heat < 0.2 {
+                    // Deep ember
+                    let t = heat * 5.0;
+                    let r = (100.0 + 155.0 * t * flicker) as u8;
+                    let g = (10.0 + 25.0 * t) as u8;
+                    let b = 0;
+                    Color32::from_rgb(r, g, b)
+                } else if heat < 0.45 {
+                    // Red hot
+                    let t = (heat - 0.2) / 0.25;
+                    let smooth_t = Self::smooth_step(0.0, 1.0, t);
+                    let r = 255;
+                    let g = (35.0 + 80.0 * smooth_t) as u8;
+                    let b = 0;
+                    Color32::from_rgb(r, g, b)
+                } else if heat < 0.75 {
+                    // Orange to yellow
+                    let t = (heat - 0.45) / 0.3;
+                    let smooth_t = Self::smooth_step(0.0, 1.0, t);
+                    let r = 255;
+                    let g = (115.0 + 140.0 * smooth_t * flicker) as u8;
+                    let b = (50.0 * smooth_t) as u8;
+                    Color32::from_rgb(r, g, b)
                 } else {
-                    let t: f32 = (smoothed - 0.75) * 4.0;
-                    Color32::from_rgb(255, 255, (200.0 + 55.0 * t) as u8)
+                    // White hot
+                    let t = (heat - 0.75) / 0.25;
+                    let smooth_t = Self::smooth_step(0.0, 1.0, t);
+                    let r = 255;
+                    let g = 255;
+                    let b = (50.0 + 205.0 * smooth_t) as u8;
+                    Color32::from_rgb(r, g, b)
                 }
             }
             Self::Cool => {
-                let ice_shimmer = (smoothed * 6.0 * PI).sin() * 0.3 + 0.7;
-                let frost_pattern = (smoothed * 4.0 * PI).cos().abs();
+                // Enhanced cool palette with icy brilliance
+                let ice = smoothed.powf(0.8);
+                let shimmer = (ice * 10.0 * PI).sin() * 0.15 + 0.85;
+                let crystalline = (ice * 7.0 * PI).cos().abs();
+                let frost = Self::smooth_step(0.0, 1.0, ice);
 
-                let r = (60.0 + 95.0 * (1.0 - smoothed).powf(1.5) * ice_shimmer) as u8;
-                let g = (120.0 + 135.0 * smoothed.powf(0.4) * frost_pattern) as u8;
-                let b = (180.0 + 75.0 * smoothed.powf(0.3)) as u8;
+                let r = (80.0 + 100.0 * (1.0 - ice).powf(1.2) * shimmer) as u8;
+                let g = (150.0 + 105.0 * frost * crystalline) as u8;
+                let b = (200.0 + 55.0 * ice * shimmer) as u8;
                 Color32::from_rgb(r, g, b)
             }
             Self::Psychedelic => {
-                let angle: f32 = smoothed * (2.0 * PI) * 3.0;
-                let r: u8 = (127.5 + 127.5 * angle.sin()) as u8;
-                let g: u8 = (127.5 + 127.5 * (angle + 2.094).sin()) as u8;
-                let b: u8 = (127.5 + 127.5 * (angle + 4.188).sin()) as u8;
+                // Enhanced psychedelic with multiple frequency layers
+                let phase = smoothed.powf(0.6);
+                let freq1 = (phase * 5.0 * PI).sin();
+                let freq2 = (phase * 7.0 * PI + 2.094).sin();
+                let freq3 = (phase * 11.0 * PI + 4.188).sin();
+                let intensity = (phase * 3.0 * PI).sin().abs() * 0.3 + 0.7;
+
+                let r: u8 = (128.0 + 127.0 * freq1 * intensity) as u8;
+                let g: u8 = (128.0 + 127.0 * freq2 * intensity) as u8;
+                let b: u8 = (128.0 + 127.0 * freq3 * intensity) as u8;
                 Color32::from_rgb(r, g, b)
             }
             Self::Sunset => {
-                if smoothed < 0.3 {
-                    let t = smoothed / 0.3;
-                    let r = (30.0 + 225.0 * t) as u8;
-                    let g = (0.0 + 50.0 * t) as u8;
-                    let b = (80.0 * (1.0 - t)) as u8;
+                // Majestic sunset with atmospheric scattering
+                let sun = smoothed.powf(0.65);
+                let atmosphere = (sun * 4.0 * PI).sin() * 0.5 + 0.5;
+                let glow = Self::smooth_step(0.0, 1.0, sun);
+
+                if sun < 0.25 {
+                    // Deep twilight blue
+                    let t = sun / 0.25;
+                    let smooth_t = Self::smooth_step(0.0, 1.0, t);
+                    let r = (40.0 + 80.0 * smooth_t) as u8;
+                    let g = (20.0 + 60.0 * smooth_t) as u8;
+                    let b = (100.0 + 55.0 * smooth_t * atmosphere) as u8;
                     Color32::from_rgb(r, g, b)
-                } else if smoothed < 0.7 {
-                    let t = (smoothed - 0.3) / 0.4;
-                    let r = (255.0 - 55.0 * t) as u8;
-                    let g = (50.0 + 155.0 * t) as u8;
-                    let b = (20.0 + 80.0 * t) as u8;
+                } else if sun < 0.5 {
+                    // Purple to magenta transition
+                    let t = (sun - 0.25) / 0.25;
+                    let smooth_t = Self::smooth_step(0.0, 1.0, t);
+                    let r = (120.0 + 135.0 * smooth_t) as u8;
+                    let g = (80.0 + 70.0 * smooth_t * atmosphere) as u8;
+                    let b = (155.0 - 50.0 * smooth_t) as u8;
+                    Color32::from_rgb(r, g, b)
+                } else if sun < 0.75 {
+                    // Orange to golden
+                    let t = (sun - 0.5) / 0.25;
+                    let smooth_t = Self::smooth_step(0.0, 1.0, t);
+                    let r = 255;
+                    let g = (150.0 + 80.0 * smooth_t * glow) as u8;
+                    let b = (105.0 - 50.0 * smooth_t) as u8;
                     Color32::from_rgb(r, g, b)
                 } else {
-                    let t = (smoothed - 0.7) / 0.3;
-                    let r = (200.0 + 55.0 * t) as u8;
-                    let g = (205.0 + 50.0 * t) as u8;
-                    let b = (100.0 + 155.0 * t) as u8;
+                    // Bright sky to white
+                    let t = (sun - 0.75) / 0.25;
+                    let smooth_t = Self::smooth_step(0.0, 1.0, t);
+                    let r = 255;
+                    let g = (230.0 + 25.0 * smooth_t) as u8;
+                    let b = (55.0 + 180.0 * smooth_t * atmosphere) as u8;
                     Color32::from_rgb(r, g, b)
                 }
             }
             Self::Electric => {
-                let pulse = (smoothed * 10.0).sin().abs();
-                let r = (255.0 * (smoothed * 2.0).min(1.0) * pulse) as u8;
-                let g = ((smoothed - 0.2) * 2.5).clamp(0.0, 1.0) as u8;
-                let b = (255.0 * ((1.0 - smoothed) * 1.5).min(1.0)) as u8;
+                // High voltage electric arcs with lightning effect
+                let voltage = smoothed.powf(0.55);
+                let arc = (voltage * 15.0 * PI).sin().abs();
+                let spark = if (voltage * 25.0 * PI).sin() > 0.92 { 1.5 } else { 1.0 };
+                let discharge = Self::smooth_step(0.0, 1.0, voltage);
+
+                let r = (150.0 + 105.0 * discharge * arc * spark) as u8;
+                let g = (80.0 + 120.0 * (1.0 - voltage * 0.6) * spark) as u8;
+                let b = (220.0 + 35.0 * (1.0 - discharge).powf(0.5)) as u8;
                 Color32::from_rgb(r, g, b)
             }
             Self::Forest => {
@@ -250,15 +311,21 @@ impl ColorScheme {
                 Color32::from_rgb(r, g, b)
             }
             Self::Grayscale => {
-                let gray = (255.0 * smoothed.powf(0.8)) as u8;
+                // Enhanced grayscale with subtle gradient and contrast
+                let luminance = smoothed.powf(0.75);
+                let contrast = (luminance * 8.0 * PI).sin() * 0.05 + 1.0;
+                let gray = (255.0 * luminance * contrast).clamp(0.0, 255.0) as u8;
                 Color32::from_rgb(gray, gray, gray)
             }
 
             Self::UltraSmooth => {
-                let phase: f32 = smoothed * (2.0 * PI);
-                let r: u8 = 127.0f32.mul_add(phase.sin(), 128.0) as u8;
-                let g: u8 = 127.0f32.mul_add((phase + 2.094).sin(), 128.0) as u8;
-                let b: u8 = 127.0f32.mul_add((phase + 4.188).sin(), 128.0) as u8;
+                // Ultra smooth rainbow with perfect color transitions
+                let phase = smoothed.powf(0.85) * 2.0 * PI;
+                let secondary = (smoothed * 3.0 * PI).sin() * 0.15 + 0.85;
+
+                let r: u8 = (128.0 + 127.0 * phase.sin() * secondary) as u8;
+                let g: u8 = (128.0 + 127.0 * (phase + 2.094).sin() * secondary) as u8;
+                let b: u8 = (128.0 + 127.0 * (phase + 4.188).sin() * secondary) as u8;
                 Color32::from_rgb(r, g, b)
             }
 
