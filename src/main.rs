@@ -1,10 +1,7 @@
 use eframe::{NativeOptions, egui};
 use egui::IconData;
 use fractals_rs::constant::{HEIGHT, WIDTH};
-use fractals_rs::structs::fractal_app::FractalApp;
-
-#[cfg(test)]
-mod benches;
+use fractals_rs::ui::fractal_app::FractalApp;
 
 const APP_ICON: &[u8] = include_bytes!("../assets/fractale.png");
 

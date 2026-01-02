@@ -1,8 +1,8 @@
-use crate::enums::fractal_type::FractalType;
-use crate::enums::precision_mode::PrecisionMode;
-use crate::structs::color_scheme::ColorScheme;
-use crate::structs::fractal_app::FractalApp;
-use crate::structs::point::Point;
+use crate::utils::precision_mode::PrecisionMode;
+use crate::fractals::fractal_type::FractalType;
+use crate::utils::color_scheme::ColorScheme;
+use crate::utils::point::Point;
+use crate::ui::fractal_app::FractalApp;
 use eframe::emath::{Pos2, Rect, Vec2};
 use eframe::epaint::Color32;
 use egui::{ColorImage, TextureOptions};

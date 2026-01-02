@@ -1,6 +1,6 @@
-use crate::enums::precision_mode::PrecisionMode;
-use crate::structs::point::Point;
-use crate::traits::fractal_float::FractalFloat;
+use crate::utils::precision_mode::PrecisionMode;
+use crate::utils::point::Point;
+use crate::fractals::fractal_float::FractalFloat;
 
 /// Represents the type of fractal to be generated.
 #[derive(Clone, Copy, Debug, PartialEq)]

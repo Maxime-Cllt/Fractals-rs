@@ -1,5 +1,4 @@
 pub mod constant;
-pub mod enums;
-pub mod structs;
-pub mod traits;
+pub mod utils;
+pub mod fractals;
 pub mod ui;
