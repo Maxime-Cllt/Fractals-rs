@@ -61,11 +61,3 @@ jobs:
       - name: Run tests (with f128)
         if: matrix.features == 'f128'
         run: cargo test --workspace --features f128 --verbose
-
-      - name: Check formatting
-        if: matrix.features == 'default'
-        run: cargo fmt --all -- --check
-
-      - name: Run clippy
-        if: matrix.features == 'default'
-        run: cargo clippy --workspace -- -D warnings

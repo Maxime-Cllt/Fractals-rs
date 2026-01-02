@@ -6,7 +6,6 @@
 /// - Process 2 pixels simultaneously with f64x2
 /// - Vectorized escape-time algorithm
 /// - Early termination with active masks
-
 use wide::{f32x4, f64x2};
 
 // ============================================================================
@@ -22,7 +21,7 @@ use wide::{f32x4, f64x2};
 ///
 /// # Returns
 /// Array of 4 iteration counts
-#[inline]
+#[inline(always)]
 pub fn mandelbrot_simd_f32(cx: &[f32; 4], cy: &[f32; 4], max_iteration: u16) -> [u16; 4] {
     let mut iterations = [0u16; 4];
     let mut active_mask = [true; 4];
@@ -91,7 +90,7 @@ pub fn mandelbrot_simd_f32(cx: &[f32; 4], cy: &[f32; 4], max_iteration: u16) -> 
 }
 
 /// SIMD Mandelbrot kernel processing 2 f64 pixels simultaneously.
-#[inline]
+#[inline(always)]
 pub fn mandelbrot_simd_f64(cx: &[f64; 2], cy: &[f64; 2], max_iteration: u16) -> [u16; 2] {
     let mut iterations = [0u16; 2];
     let mut active_mask = [true; 2];
@@ -161,7 +160,7 @@ pub fn mandelbrot_simd_f64(cx: &[f64; 2], cy: &[f64; 2], max_iteration: u16) -> 
 // ============================================================================
 
 /// SIMD Julia kernel processing 4 f32 pixels simultaneously.
-#[inline]
+#[inline(always)]
 pub fn julia_simd_f32(
     zx: &[f32; 4],
     zy: &[f32; 4],
@@ -212,7 +211,7 @@ pub fn julia_simd_f32(
 }
 
 /// SIMD Julia kernel processing 2 f64 pixels simultaneously.
-#[inline]
+#[inline(always)]
 pub fn julia_simd_f64(
     zx: &[f64; 2],
     zy: &[f64; 2],
@@ -266,7 +265,7 @@ pub fn julia_simd_f64(
 // ============================================================================
 
 /// SIMD Burning Ship kernel processing 4 f32 pixels simultaneously.
-#[inline]
+#[inline(always)]
 pub fn burning_ship_simd_f32(cx: &[f32; 4], cy: &[f32; 4], max_iteration: u16) -> [u16; 4] {
     let cx_vec = f32x4::from(*cx);
     let cy_vec = f32x4::from(*cy);
@@ -311,7 +310,7 @@ pub fn burning_ship_simd_f32(cx: &[f32; 4], cy: &[f32; 4], max_iteration: u16) -
 }
 
 /// SIMD Burning Ship kernel processing 2 f64 pixels simultaneously.
-#[inline]
+#[inline(always)]
 pub fn burning_ship_simd_f64(cx: &[f64; 2], cy: &[f64; 2], max_iteration: u16) -> [u16; 2] {
     let cx_vec = f64x2::from(*cx);
     let cy_vec = f64x2::from(*cy);
@@ -359,7 +358,7 @@ pub fn burning_ship_simd_f64(cx: &[f64; 2], cy: &[f64; 2], max_iteration: u16) -
 // ============================================================================
 
 /// SIMD Tricorn kernel processing 4 f32 pixels simultaneously.
-#[inline]
+#[inline(always)]
 pub fn tricorn_simd_f32(cx: &[f32; 4], cy: &[f32; 4], max_iteration: u16) -> [u16; 4] {
     let cx_vec = f32x4::from(*cx);
     let cy_vec = f32x4::from(*cy);
@@ -404,7 +403,7 @@ pub fn tricorn_simd_f32(cx: &[f32; 4], cy: &[f32; 4], max_iteration: u16) -> [u1
 }
 
 /// SIMD Tricorn kernel processing 2 f64 pixels simultaneously.
-#[inline]
+#[inline(always)]
 pub fn tricorn_simd_f64(cx: &[f64; 2], cy: &[f64; 2], max_iteration: u16) -> [u16; 2] {
     let cx_vec = f64x2::from(*cx);
     let cy_vec = f64x2::from(*cy);

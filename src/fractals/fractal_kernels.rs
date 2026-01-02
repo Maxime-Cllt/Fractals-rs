@@ -1,6 +1,5 @@
 /// Optimized fractal computation kernels with direct f32/f64 implementations.
 /// This module replaces the trait-based abstraction for maximum performance.
-
 use crate::utils::point::Point;
 
 #[cfg(feature = "f128")]

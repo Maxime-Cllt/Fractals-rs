@@ -114,20 +114,20 @@ impl ColorScheme {
     }
 
     /// Smooth step function for smooth interpolation between two edges.
-    #[inline]
+    #[inline(always)]
     fn smooth_step(edge0: f32, edge1: f32, x: f32) -> f32 {
         let t = ((x - edge0) / (edge1 - edge0)).clamp(0.0, 1.0);
         t * t * 2.0f32.mul_add(-t, 3.0)
     }
 
     /// Performs linear interpolation between two values.
-    #[inline]
+    #[inline(always)]
     fn lerp(a: f32, b: f32, t: f32) -> f32 {
         t.mul_add(b - a, a)
     }
 
     /// Converts HSV color to RGB.
-    #[inline]
+    #[inline(always)]
     fn hsv_to_rgb(h: f32, s: f32, v: f32) -> Color32 {
         let c = v * s;
         let x = c * (1.0 - ((h / 60.0) % 2.0 - 1.0).abs());
@@ -153,19 +153,19 @@ impl ColorScheme {
 impl ColorScheme {
     /// Enhanced smooth coloring function for ultra-high quality rendering
     /// Uses multiple smoothing techniques for elimination of color banding
-    #[inline]
+    #[inline(always)]
     fn ultra_smooth(t: f32) -> f32 {
         // Triple smoothing for maximum quality
         let smooth1 = t.sqrt();
         let smooth2 = smooth1.sqrt();
         let smooth3 = Self::smooth_step(0.0, 1.0, smooth1);
 
-        // Blend different smoothing techniques
-        smooth1 * 0.5 + smooth2 * 0.3 + smooth3 * 0.2
+        // Blend different smoothing techniques using FMA
+        0.3f32.mul_add(smooth2, 0.5f32.mul_add(smooth1, smooth3 * 0.2))
     }
 
     /// Converts the number of iterations to a color based on the color scheme.
-    #[inline]
+    #[inline(always)]
     #[must_use]
     pub fn to_color32(&self, iterations: u16, max_iterations: u16) -> Color32 {
         if iterations >= max_iterations {

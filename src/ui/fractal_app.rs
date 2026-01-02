@@ -111,8 +111,8 @@ impl FractalApp {
                             };
 
                             // Write 4 pixels
-                            for i in 0..4 {
-                                let color = self.color_scheme.to_color32(iterations[i], self.max_iterations);
+                            for (i, &iter) in iterations.iter().enumerate() {
+                                let color = self.color_scheme.to_color32(iter, self.max_iterations);
                                 let pixel_idx = (x + i) * 4;
                                 row_chunk[pixel_idx] = color.r();
                                 row_chunk[pixel_idx + 1] = color.g();
@@ -176,8 +176,8 @@ impl FractalApp {
                             };
 
                             // Write 2 pixels
-                            for i in 0..2 {
-                                let color = self.color_scheme.to_color32(iterations[i], self.max_iterations);
+                            for (i, &iter) in iterations.iter().enumerate() {
+                                let color = self.color_scheme.to_color32(iter, self.max_iterations);
                                 let pixel_idx = (x + i) * 4;
                                 row_chunk[pixel_idx] = color.r();
                                 row_chunk[pixel_idx + 1] = color.g();
@@ -235,7 +235,7 @@ impl FractalApp {
     }
 
     /// Computes the scale factors and min/max coordinates for the fractal view.
-    #[inline]
+    #[inline(always)]
     fn compute_scale(&self) -> (f64, f64, f64, f64) {
         let width: u32 = self.image_size.0;
         let height: u32 = self.image_size.1;
