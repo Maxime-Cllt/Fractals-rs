@@ -186,19 +186,24 @@ jobs:
 
   build-and-upload:
     needs: [ get-version, create-tag ]
-    name: Build & Release for ${{ matrix.target }} on ${{ matrix.os }}
+    name: Build & Release for ${{ matrix.target }} (${{ matrix.variant }}) on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
-#          - { os: ubuntu-latest, target: x86_64-unknown-linux-gnu, cross: false }
+#          - { os: ubuntu-latest, target: x86_64-unknown-linux-gnu, cross: false, variant: "standard" }
+#          - { os: ubuntu-latest, target: x86_64-unknown-linux-gnu, cross: false, variant: "f128" }
 
-          - { os: windows-latest, target: x86_64-pc-windows-msvc, cross: false }
-          - { os: windows-latest, target: aarch64-pc-windows-msvc, cross: false }
+          - { os: windows-latest, target: x86_64-pc-windows-msvc, cross: false, variant: "standard" }
+          - { os: windows-latest, target: x86_64-pc-windows-msvc, cross: false, variant: "f128" }
+          - { os: windows-latest, target: aarch64-pc-windows-msvc, cross: false, variant: "standard" }
+          - { os: windows-latest, target: aarch64-pc-windows-msvc, cross: false, variant: "f128" }
 
-          - { os: macos-latest, target: x86_64-apple-darwin, cross: false }
-          - { os: macos-latest, target: aarch64-apple-darwin, cross: false }
+          - { os: macos-latest, target: x86_64-apple-darwin, cross: false, variant: "standard" }
+          - { os: macos-latest, target: x86_64-apple-darwin, cross: false, variant: "f128" }
+          - { os: macos-latest, target: aarch64-apple-darwin, cross: false, variant: "standard" }
+          - { os: macos-latest, target: aarch64-apple-darwin, cross: false, variant: "f128" }
     steps:
       - name: Fetch Repository
         uses: actions/checkout@v4
@@ -231,34 +236,66 @@ jobs:
         with:
           target: ${{ matrix.target }}
 
-      - name: Build the binary
+      - name: Build the binary (standard)
+        if: matrix.variant == 'standard'
         run: |
           cargo build --release --target ${{ matrix.target }}
 
-      - name: Rename binary (Linux & macOS)
-        if: ${{ matrix.os != 'windows-latest' }}
+      - name: Build the binary (f128)
+        if: matrix.variant == 'f128'
+        run: |
+          cargo build --release --target ${{ matrix.target }} --features f128
+
+      - name: Rename binary (Linux & macOS - standard)
+        if: ${{ matrix.os != 'windows-latest' && matrix.variant == 'standard' }}
         run: |
           mv target/${{ matrix.target }}/release/Fractals-rs target/${{ matrix.target }}/release/Fractals-rs-${{ matrix.target }}
 
-      - name: Rename binary (Windows)
-        if: ${{ matrix.os == 'windows-latest' }}
+      - name: Rename binary (Linux & macOS - f128)
+        if: ${{ matrix.os != 'windows-latest' && matrix.variant == 'f128' }}
+        run: |
+          mv target/${{ matrix.target }}/release/Fractals-rs target/${{ matrix.target }}/release/Fractals-rs-${{ matrix.target }}-f128
+
+      - name: Rename binary (Windows - standard)
+        if: ${{ matrix.os == 'windows-latest' && matrix.variant == 'standard' }}
         run: |
           mv target/${{ matrix.target }}/release/Fractals-rs.exe target/${{ matrix.target }}/release/Fractals-rs-${{ matrix.target }}.exe
 
-      - name: Upload release binary (Windows)
-        if: ${{ matrix.os == 'windows-latest' }}
+      - name: Rename binary (Windows - f128)
+        if: ${{ matrix.os == 'windows-latest' && matrix.variant == 'f128' }}
+        run: |
+          mv target/${{ matrix.target }}/release/Fractals-rs.exe target/${{ matrix.target }}/release/Fractals-rs-${{ matrix.target }}-f128.exe
+
+      - name: Upload release binary (Windows - standard)
+        if: ${{ matrix.os == 'windows-latest' && matrix.variant == 'standard' }}
         uses: actions/upload-artifact@v4
         with:
           name: Fractals-rs-${{ matrix.target }}.exe
           path: target/${{ matrix.target }}/release/Fractals-rs-${{ matrix.target }}.exe
           compression-level: '9'
 
-      - name: Upload release binary (Linux & macOS)
-        if: ${{ matrix.os != 'windows-latest' }}
+      - name: Upload release binary (Windows - f128)
+        if: ${{ matrix.os == 'windows-latest' && matrix.variant == 'f128' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Fractals-rs-${{ matrix.target }}-f128.exe
+          path: target/${{ matrix.target }}/release/Fractals-rs-${{ matrix.target }}-f128.exe
+          compression-level: '9'
+
+      - name: Upload release binary (Linux & macOS - standard)
+        if: ${{ matrix.os != 'windows-latest' && matrix.variant == 'standard' }}
         uses: actions/upload-artifact@v4
         with:
           name: Fractals-rs-${{ matrix.target }}
           path: target/${{ matrix.target }}/release/Fractals-rs-${{ matrix.target }}
+          compression-level: '9'
+
+      - name: Upload release binary (Linux & macOS - f128)
+        if: ${{ matrix.os != 'windows-latest' && matrix.variant == 'f128' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Fractals-rs-${{ matrix.target }}-f128
+          path: target/${{ matrix.target }}/release/Fractals-rs-${{ matrix.target }}-f128
           compression-level: '9'
 
   upload-release:

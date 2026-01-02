@@ -1,4 +1,15 @@
-use crate::traits::fractal_float::FractalFloat;
+/// A trait for representing floating-point numbers in a fractal context.
+pub trait FractalFloat: Clone + PartialOrd {
+    fn zero() -> Self; // Represents the zero value.
+    fn two() -> Self; // Represents the two value.
+    fn four() -> Self; // Represents the four value.
+    fn abs(&self) -> Self; // Returns the absolute value.
+    fn from_f64(val: f64) -> Self; // Converts a f64 to the implementing type.
+    fn to_f64(&self) -> f64; // Converts the implementing type to f64.
+    fn add(&self, other: &Self) -> Self; // Adds two values.
+    fn sub(&self, other: &Self) -> Self; // Subtracts two values.
+    fn mul(&self, other: &Self) -> Self; // Multiplies two values.
+}
 
 /// Implementing the `FractalFloat` trait for f32 (Fast mode)
 impl FractalFloat for f32 {
@@ -96,6 +107,56 @@ impl FractalFloat for f64 {
     }
 }
 
+#[cfg(feature = "f128")]
+/// Implementation of the `FractalFloat` trait for `rust_decimal::Decimal` (Ultra High Precision Mode).
+/// This enables 128-bit decimal precision for extreme zoom levels.
+impl FractalFloat for rust_decimal::Decimal {
+    #[inline]
+    fn zero() -> Self {
+        rust_decimal::Decimal::ZERO
+    }
+
+    #[inline]
+    fn two() -> Self {
+        rust_decimal::Decimal::TWO
+    }
+
+    #[inline]
+    fn four() -> Self {
+        rust_decimal_macros::dec!(4)
+    }
+
+    #[inline]
+    fn abs(&self) -> Self {
+        (*self).abs()
+    }
+
+    #[inline]
+    fn from_f64(val: f64) -> Self {
+        rust_decimal::Decimal::from_f64_retain(val).unwrap_or(rust_decimal::Decimal::ZERO)
+    }
+
+    #[inline]
+    fn to_f64(&self) -> f64 {
+        // Call the to_f64 method from ToPrimitive trait via f64::try_from
+        f64::try_from(*self).unwrap_or(0.0)
+    }
+
+    #[inline]
+    fn add(&self, other: &Self) -> Self {
+        self + other
+    }
+
+    #[inline]
+    fn sub(&self, other: &Self) -> Self {
+        self - other
+    }
+
+    #[inline]
+    fn mul(&self, other: &Self) -> Self {
+        self * other
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -189,5 +250,36 @@ mod tests {
         assert_eq!(val_f64.add(&zero_f64), 5.0_f64);
         assert_eq!(val_f64.sub(&zero_f64), 5.0_f64);
         assert_eq!(val_f64.mul(&zero_f64), 0.0_f64);
+    }
+
+    #[cfg(feature = "f128")]
+    #[test]
+    fn test_fractal_float_decimal() {
+        use rust_decimal::Decimal;
+
+        let a = Decimal::from_f64_retain(1.5).unwrap();
+        let b = Decimal::from_f64_retain(2.5).unwrap();
+
+        // Test arithmetic operations
+        let sum = a.add(&b);
+        assert_eq!(sum.to_f64(), 4.0_f64);
+
+        let diff = a.sub(&b);
+        assert_eq!(diff.to_f64(), -1.0_f64);
+
+        let prod = a.mul(&b);
+        assert_eq!(prod.to_f64(), 3.75_f64);
+
+        // Test abs
+        assert_eq!(a.abs().to_f64(), 1.5_f64);
+
+        // Test conversion functions
+        let converted = <Decimal as FractalFloat>::from_f64(3.0);
+        assert_eq!(converted.to_f64(), 3.0_f64);
+
+        // Test constant functions
+        assert_eq!(<Decimal as FractalFloat>::zero().to_f64(), 0.0_f64);
+        assert_eq!(<Decimal as FractalFloat>::two().to_f64(), 2.0_f64);
+        assert_eq!(<Decimal as FractalFloat>::four().to_f64(), 4.0_f64);
     }
 }

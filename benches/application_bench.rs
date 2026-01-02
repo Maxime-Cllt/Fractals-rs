@@ -1,5 +1,5 @@
-use criterion::{criterion_group, criterion_main, Criterion};
-use fractals_rs::structs::point::Point;
+use criterion::{Criterion, criterion_group, criterion_main};
+use fractals_rs::utils::point::Point;
 
 // Test parameters
 #[allow(unused)]
@@ -34,8 +34,8 @@ fn benchmark_fractal_functions(c: &mut Criterion) {
     group.finish();
 }
 
-use fractals_rs::enums::fractal_type::FractalType;
-use fractals_rs::enums::precision_mode::PrecisionMode;
+use fractals_rs::fractals::fractal_type::FractalType;
+use fractals_rs::utils::precision_mode::PrecisionMode;
 
 #[allow(unused)]
 fn mandelbrot_iterations(x: f64, y: f64, max_iter: u16) -> u16 {
