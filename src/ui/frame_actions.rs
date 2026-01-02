@@ -86,51 +86,59 @@ impl eframe::App for FractalApp {
         if self.show_settings {
             egui::SidePanel::left("settings_panel")
                 .resizable(true)
-                .default_width(250.0)
+                .default_width(300.0)
+                .min_width(280.0)
                 .show(ctx, |ui| {
-                    ui.heading("🎛️ Controls");
+                    ui.add_space(8.0);
+                    ui.vertical_centered(|ui| {
+                        ui.heading(egui::RichText::new("🎨 Fractal Studio").size(20.0).strong());
+                        ui.label(egui::RichText::new("Professional Fractal Explorer").size(11.0).weak());
+                    });
+                    ui.add_space(8.0);
                     ui.separator();
 
-                    ui.group(|ui| {
-                        ui.label("Fractal Parameters");
+                    egui::Frame::new()
+                        .fill(ui.visuals().extreme_bg_color)
+                        .inner_margin(10.0)
+                        .corner_radius(6.0)
+                        .show(ui, |ui| {
+                        ui.label(egui::RichText::new("⚙️ Render Settings").size(14.0).strong());
+                        ui.add_space(6.0);
 
-                        ui.horizontal(|ui| {
-                            ui.label("Iterations:");
-                            if ui
-                                .add(
-                                    egui::Slider::new(&mut self.max_iterations, 10..=3000)
-                                        .step_by(1.0)
-                                        .suffix(" iters"),
-                                )
-                                .changed()
-                            {
-                                self.needs_update = true;
-                            }
-                        });
+                        ui.label(egui::RichText::new("Quality").size(12.0));
+                        if ui
+                            .add(
+                                egui::Slider::new(&mut self.max_iterations, 10..=3000)
+                                    .text("Iterations")
+                                    .logarithmic(true),
+                            )
+                            .changed()
+                        {
+                            self.needs_update = true;
+                        }
 
+                        ui.add_space(4.0);
+                        ui.label(egui::RichText::new("Resolution").size(12.0));
                         ui.horizontal(|ui| {
-                            ui.label("Width:");
+                            ui.label("W:");
                             if ui
                                 .add(
                                     egui::DragValue::new(&mut self.image_size.0)
                                         .range(100..=8192)
                                         .suffix(" px")
-                                        .speed(1.0),
+                                        .speed(10.0),
                                 )
                                 .changed()
                             {
                                 self.needs_update = true;
                             }
-                        });
-
-                        ui.horizontal(|ui| {
-                            ui.label("Height:");
+                            ui.label("H:");
                             if ui
                                 .add(
                                     egui::DragValue::new(&mut self.image_size.1)
                                         .range(100..=8192)
                                         .suffix(" px")
-                                        .speed(1.0),
+                                        .speed(10.0),
                                 )
                                 .changed()
                             {
@@ -138,15 +146,16 @@ impl eframe::App for FractalApp {
                             }
                         });
 
-                        // Change precision mode
+                        ui.add_space(6.0);
+                        ui.label(egui::RichText::new("Precision Mode").size(12.0));
                         ui.horizontal(|ui| {
-                            ui.label("Precision Mode:");
                             if ui
                                 .selectable_value(
                                     &mut self.precision_mode,
                                     PrecisionMode::Fast,
-                                    "Fast (float 32)",
+                                    "🚀 Fast",
                                 )
+                                .on_hover_text("32-bit float - fastest rendering")
                                 .clicked()
                             {
                                 self.needs_update = true;
@@ -155,20 +164,42 @@ impl eframe::App for FractalApp {
                                 .selectable_value(
                                     &mut self.precision_mode,
                                     PrecisionMode::High,
-                                    "High (float 64)",
+                                    "🎯 High",
                                 )
+                                .on_hover_text("64-bit float - deeper zoom capability")
+                                .clicked()
+                            {
+                                self.needs_update = true;
+                            }
+                            #[cfg(feature = "f128")]
+                            if ui
+                                .selectable_value(
+                                    &mut self.precision_mode,
+                                    PrecisionMode::UltraHigh,
+                                    "🔬 Ultra",
+                                )
+                                .on_hover_text("128-bit decimal - extreme zoom for deep exploration")
                                 .clicked()
                             {
                                 self.needs_update = true;
                             }
                         });
 
-                        if self.fractal_type == FractalType::Julia {
-                            ui.separator();
-                            ui.label("Julia Constant (c):");
+                    });
 
+                    if self.fractal_type == FractalType::Julia {
+                        ui.add_space(8.0);
+                        egui::Frame::none()
+                            .fill(ui.visuals().extreme_bg_color)
+                            .inner_margin(10.0)
+                            .rounding(6.0)
+                            .show(ui, |ui| {
+                            ui.label(egui::RichText::new("🌀 Julia Parameters").size(14.0).strong());
+                            ui.add_space(6.0);
+
+                            ui.label(egui::RichText::new("Constant (c)").size(12.0));
                             ui.horizontal(|ui| {
-                                ui.label("Real:");
+                                ui.label("Re:");
                                 if ui
                                     .add(
                                         egui::DragValue::new(&mut self.julia_c.x)
@@ -182,7 +213,7 @@ impl eframe::App for FractalApp {
                             });
 
                             ui.horizontal(|ui| {
-                                ui.label("Imag:");
+                                ui.label("Im:");
                                 if ui
                                     .add(
                                         egui::DragValue::new(&mut self.julia_c.y)
@@ -195,58 +226,82 @@ impl eframe::App for FractalApp {
                                 }
                             });
 
-                            ui.separator();
-                            ui.label("Presets:");
+                            ui.add_space(6.0);
+                            ui.label(egui::RichText::new("Presets").size(12.0));
                             ui.horizontal_wrapped(|ui| {
                                 let presets = [
-                                    ("Dragon", (-0.7269, 0.1889)),
-                                    ("Spiral", (-0.8, 0.156)),
-                                    ("Lightning", (-0.74529, 0.11307)),
-                                    ("Dendrite", (-0.235, 0.827)),
+                                    ("🐉 Dragon", (-0.7269, 0.1889)),
+                                    ("🌀 Spiral", (-0.8, 0.156)),
+                                    ("⚡ Lightning", (-0.74529, 0.11307)),
+                                    ("🌿 Dendrite", (-0.235, 0.827)),
+                                    ("❄️ Snowflake", (-0.4, 0.6)),
+                                    ("🔥 Fire", (0.285, 0.01)),
                                 ];
 
                                 for (name, c) in presets {
-                                    if ui.small_button(name).clicked() {
+                                    if ui.button(name).clicked() {
                                         self.julia_c = Point::new(c.0, c.1);
                                         self.needs_update = true;
                                     }
                                 }
                             });
-                        }
-                    });
+                        });
+                    }
 
-                    ui.add_space(10.0);
+                    ui.add_space(8.0);
 
-                    ui.group(|ui| {
-                        ui.label("Navigation");
+                    egui::Frame::new()
+                        .fill(ui.visuals().extreme_bg_color)
+                        .inner_margin(10.0)
+                        .corner_radius(6.0)
+                        .show(ui, |ui| {
+                        ui.label(egui::RichText::new("🗺️ Navigation").size(14.0).strong());
+                        ui.add_space(6.0);
 
-                        if ui.button("🏠 Reset View").clicked() {
+                        if ui.button(egui::RichText::new("🏠 Reset View").size(13.0)).clicked() {
                             self.center = self.fractal_type.default_center();
                             self.zoom = 1.0;
                             self.needs_update = true;
                         }
 
+                        ui.add_space(6.0);
                         ui.separator();
-                        ui.label("Current Position:");
-                        ui.monospace(format!("X: {:.6}", self.center.x));
-                        ui.monospace(format!("Y: {:.6}", self.center.y));
-                        ui.monospace(format!("Zoom: {:.2e}", self.zoom));
-                        ui.monospace(format!("Fractal: {}", self.fractal_type.name()));
-                        ui.monospace(format!(
-                            "Resolution: {}x{}",
-                            self.image_size.0, self.image_size.1
-                        ));
+                        ui.label(egui::RichText::new("Current State").size(12.0).weak());
+                        egui::Grid::new("info_grid")
+                            .num_columns(2)
+                            .spacing([10.0, 4.0])
+                            .show(ui, |ui| {
+                                ui.label("Position:");
+                                ui.monospace(format!("({:.6}, {:.6})", self.center.x, self.center.y));
+                                ui.end_row();
+
+                                ui.label("Zoom:");
+                                ui.monospace(format!("{:.2e}×", self.zoom));
+                                ui.end_row();
+
+                                ui.label("Fractal:");
+                                ui.label(self.fractal_type.name());
+                                ui.end_row();
+
+                                ui.label("Size:");
+                                ui.monospace(format!("{}×{}", self.image_size.0, self.image_size.1));
+                                ui.end_row();
+                            });
                     });
 
-                    ui.add_space(10.0);
+                    ui.add_space(8.0);
 
-                    ui.group(|ui| {
-                        ui.label("Instructions");
-                        ui.separator();
-                        ui.small("• Click and drag to pan");
-                        ui.small("• Scroll to zoom in/out");
-                        ui.small("• Right-click for context menu");
-                        ui.small("• Use menu bar to switch fractals");
+                    egui::Frame::new()
+                        .fill(ui.visuals().faint_bg_color)
+                        .inner_margin(8.0)
+                        .corner_radius(4.0)
+                        .show(ui, |ui| {
+                        ui.label(egui::RichText::new("💡 Quick Tips").size(12.0).strong());
+                        ui.add_space(4.0);
+                        ui.label("🖱️ Drag to pan view");
+                        ui.label("🔍 Scroll to zoom in/out");
+                        ui.label("🖱️ Double-click to zoom to point");
+                        ui.label("🖱️ Right-click for context menu");
                     });
                 });
         }

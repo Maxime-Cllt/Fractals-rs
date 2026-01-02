@@ -23,6 +23,14 @@ pub enum ColorScheme {
     RainbowSmooth,
     VelvetShadow,
     GoldenHour,
+    MoltenLava,
+    IcebergGlacier,
+    NorthernLights,
+    TropicalParadise,
+    VaporwaveNeon,
+    MidnightStars,
+    CherryBlossom,
+    QuantumPlasma,
 }
 
 impl ColorScheme {
@@ -47,12 +55,20 @@ impl ColorScheme {
             Self::RainbowSmooth => "Rainbow Smooth",
             Self::VelvetShadow => "Velvet Shadow",
             Self::GoldenHour => "Golden Hour",
+            Self::MoltenLava => "Molten Lava",
+            Self::IcebergGlacier => "Iceberg Glacier",
+            Self::NorthernLights => "Northern Lights",
+            Self::TropicalParadise => "Tropical Paradise",
+            Self::VaporwaveNeon => "Vaporwave Neon",
+            Self::MidnightStars => "Midnight Stars",
+            Self::CherryBlossom => "Cherry Blossom",
+            Self::QuantumPlasma => "Quantum Plasma",
         }
     }
 
     /// Returns all available color schemes.
     #[inline]
-    pub const fn all() -> [Self; 17] {
+    pub const fn all() -> [Self; 25] {
         [
             Self::Classic,
             Self::Hot,
@@ -71,6 +87,14 @@ impl ColorScheme {
             Self::RainbowSmooth,
             Self::VelvetShadow,
             Self::GoldenHour,
+            Self::MoltenLava,
+            Self::IcebergGlacier,
+            Self::NorthernLights,
+            Self::TropicalParadise,
+            Self::VaporwaveNeon,
+            Self::MidnightStars,
+            Self::CherryBlossom,
+            Self::QuantumPlasma,
         ]
     }
 
@@ -356,6 +380,183 @@ impl ColorScheme {
                     let b: u8 = (100.0 * smooth_t).mul_add(glow, 100.0) as u8;
                     Color32::from_rgb(r, g, b)
                 }
+            }
+
+            Self::MoltenLava => {
+                // Ultra-realistic lava with heat distortion
+                let heat = smoothed.powf(0.6);
+                let turbulence = (smoothed * 15.0 * PI).sin() * 0.08 + 1.0;
+                let core_temp = (smoothed * 7.0 * PI).cos().abs() * 0.15 + 0.85;
+
+                if heat < 0.15 {
+                    // Deep volcanic rock - almost black with hint of red
+                    let t = heat / 0.15;
+                    let r = (90.0 * t * core_temp) as u8;
+                    let g = (15.0 * t) as u8;
+                    let b = (5.0 * t) as u8;
+                    Color32::from_rgb(r, g, b)
+                } else if heat < 0.4 {
+                    // Heating rock - dark red to orange
+                    let t = (heat - 0.15) / 0.25;
+                    let smooth_t = Self::smooth_step(0.0, 1.0, t);
+                    let r = (165.0 * smooth_t * turbulence + 90.0) as u8;
+                    let g = (50.0 * smooth_t + 15.0) as u8;
+                    let b = (10.0 * smooth_t + 5.0) as u8;
+                    Color32::from_rgb(r, g, b)
+                } else if heat < 0.7 {
+                    // Molten lava - bright orange to yellow
+                    let t = (heat - 0.4) / 0.3;
+                    let smooth_t = Self::smooth_step(0.0, 1.0, t);
+                    let r = (255.0 * turbulence).min(255.0) as u8;
+                    let g = (140.0 * smooth_t * turbulence + 65.0) as u8;
+                    let b = (25.0 * smooth_t + 15.0) as u8;
+                    Color32::from_rgb(r, g, b)
+                } else {
+                    // White-hot core - extreme heat
+                    let t = (heat - 0.7) / 0.3;
+                    let smooth_t = Self::smooth_step(0.0, 1.0, t);
+                    let r = 255;
+                    let g = (50.0 * smooth_t + 205.0) as u8;
+                    let b = (180.0 * smooth_t * core_temp + 40.0) as u8;
+                    Color32::from_rgb(r, g, b)
+                }
+            }
+
+            Self::IcebergGlacier => {
+                // Crystalline ice with depth and refraction
+                let depth = smoothed.powf(1.2);
+                let crystal = (smoothed * 8.0 * PI).sin().abs();
+                let refraction = (smoothed * 12.0 * PI).cos() * 0.5 + 0.5;
+                let shimmer = (smoothed * 20.0 * PI).sin() * 0.1 + 0.9;
+
+                let base_cyan = 150.0 + 105.0 * depth * shimmer;
+                let ice_blue = 180.0 + 75.0 * (1.0 - depth).powf(0.5) * crystal;
+                let highlight = 200.0 + 55.0 * refraction * (1.0 - depth);
+
+                let r = (base_cyan * 0.7 * refraction) as u8;
+                let g = ice_blue as u8;
+                let b = highlight as u8;
+                Color32::from_rgb(r, g, b)
+            }
+
+            Self::NorthernLights => {
+                // Aurora Borealis - flowing ethereal lights
+                let flow = smoothed.powf(0.8);
+                let wave1 = (flow * 4.0 * PI).sin();
+                let wave2 = (flow * 6.0 * PI + 1.5).sin();
+                let wave3 = (flow * 3.0 * PI + 3.0).sin();
+                let shimmer = (flow * 15.0 * PI).cos().abs() * 0.2 + 0.8;
+
+                // Mix of green, blue, and magenta aurora
+                let green_aurora = (0.5 + 0.5 * wave1) * shimmer;
+                let blue_aurora = (0.5 + 0.5 * wave2) * shimmer;
+                let magenta_aurora = (0.5 + 0.5 * wave3).powf(2.0) * shimmer;
+
+                let r = (80.0 + 120.0 * magenta_aurora) as u8;
+                let g = (100.0 + 155.0 * green_aurora) as u8;
+                let b = (120.0 + 135.0 * blue_aurora) as u8;
+                Color32::from_rgb(r, g, b)
+            }
+
+            Self::TropicalParadise => {
+                // Vibrant tropical colors - ocean to sunset
+                let paradise = smoothed.powf(0.7);
+                let wave = (paradise * 5.0 * PI).sin() * 0.5 + 0.5;
+                let bloom = (paradise * 3.0 * PI).cos().abs();
+
+                if paradise < 0.3 {
+                    // Deep ocean turquoise
+                    let t = paradise / 0.3;
+                    let r = (30.0 + 50.0 * t * wave) as u8;
+                    let g = (120.0 + 80.0 * t) as u8;
+                    let b = (150.0 + 70.0 * t * bloom) as u8;
+                    Color32::from_rgb(r, g, b)
+                } else if paradise < 0.6 {
+                    // Tropical cyan to mint
+                    let t = (paradise - 0.3) / 0.3;
+                    let r = (80.0 + 100.0 * t * bloom) as u8;
+                    let g = (200.0 + 35.0 * t) as u8;
+                    let b = (220.0 - 40.0 * t * wave) as u8;
+                    Color32::from_rgb(r, g, b)
+                } else {
+                    // Sunset coral and pink
+                    let t = (paradise - 0.6) / 0.4;
+                    let r = (180.0 + 75.0 * t) as u8;
+                    let g = (235.0 - 50.0 * t * wave) as u8;
+                    let b = (180.0 + 50.0 * t * bloom) as u8;
+                    Color32::from_rgb(r, g, b)
+                }
+            }
+
+            Self::VaporwaveNeon => {
+                // 80s/90s aesthetic with neon colors
+                let vibe = smoothed.powf(0.75);
+                let grid = ((vibe * 20.0).fract() * 2.0 - 1.0).abs();
+                let glow = (vibe * 6.0 * PI).sin().abs();
+                let pulse = (vibe * 10.0 * PI).sin() * 0.15 + 0.85;
+
+                // Neon pink, cyan, and purple
+                let neon_pink = (0.7 + 0.3 * glow) * pulse;
+                let neon_cyan = (0.6 + 0.4 * (1.0 - glow)) * pulse;
+                let neon_purple = (0.5 + 0.5 * grid) * pulse;
+
+                let r = (150.0 + 105.0 * neon_pink) as u8;
+                let g = (80.0 + 120.0 * neon_cyan) as u8;
+                let b = (180.0 + 75.0 * neon_purple) as u8;
+                Color32::from_rgb(r, g, b)
+            }
+
+            Self::MidnightStars => {
+                // Deep space with stars and nebula
+                let space = smoothed.powf(1.5);
+                let stars = (space * 50.0 * PI).sin();
+                let star_brightness = if stars > 0.95 {
+                    (stars - 0.95) * 20.0
+                } else {
+                    0.0
+                };
+                let nebula = (space * 3.0 * PI).sin().abs();
+                let galaxy_dust = (space * 8.0 * PI).cos() * 0.5 + 0.5;
+
+                let r = (10.0 + 30.0 * nebula + 245.0 * star_brightness) as u8;
+                let g = (5.0 + 20.0 * galaxy_dust + 245.0 * star_brightness) as u8;
+                let b = (30.0 + 80.0 * space.sqrt() + 245.0 * star_brightness) as u8;
+                Color32::from_rgb(r, g, b)
+            }
+
+            Self::CherryBlossom => {
+                // Delicate pink and white spring blossoms
+                let bloom = smoothed.powf(0.6);
+                let petal = (bloom * 6.0 * PI).sin() * 0.5 + 0.5;
+                let breeze = (bloom * 4.0 * PI).cos().abs();
+                let soft_light = Self::smooth_step(0.0, 1.0, bloom);
+
+                let pink_intensity = petal * soft_light;
+                let white_highlight = (1.0 - bloom * 0.5) * breeze;
+
+                let r = (200.0 + 55.0 * pink_intensity) as u8;
+                let g = (150.0 + 70.0 * white_highlight) as u8;
+                let b = (180.0 + 40.0 * pink_intensity - 50.0 * white_highlight) as u8;
+                Color32::from_rgb(r, g, b)
+            }
+
+            Self::QuantumPlasma => {
+                // High-energy plasma with quantum fluctuations
+                let energy = smoothed.powf(0.5);
+                let quantum_flux = (energy * 12.0 * PI).sin();
+                let plasma_wave = (energy * 8.0 * PI + 2.0).sin();
+                let field_strength = (energy * 15.0 * PI).cos().abs();
+                let instability = (energy * 25.0 * PI).sin() * 0.1 + 0.9;
+
+                // Electric blue, violet, and white
+                let electric = (0.5 + 0.5 * quantum_flux) * instability;
+                let violet = (0.5 + 0.5 * plasma_wave) * field_strength;
+                let intensity = energy.sqrt();
+
+                let r = (100.0 + 155.0 * violet * intensity) as u8;
+                let g = (80.0 + 100.0 * electric * intensity) as u8;
+                let b = (200.0 + 55.0 * (electric + violet) * 0.5) as u8;
+                Color32::from_rgb(r, g, b)
             }
         }
     }
