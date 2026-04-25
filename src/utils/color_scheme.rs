@@ -164,6 +164,20 @@ impl ColorScheme {
         0.3f32.mul_add(smooth2, 0.5f32.mul_add(smooth1, smooth3 * 0.2))
     }
 
+    /// Builds a pre-computed color palette for fast per-pixel lookup.
+    /// Avoids calling `to_color32` (with heavy trig) once per pixel.
+    /// Returns `Vec<Color32>` so pixels can be written directly without byte unpacking.
+    #[must_use]
+    pub fn build_palette(&self, max_iterations: u16) -> Vec<Color32> {
+        let len = max_iterations as usize + 1;
+        let mut palette = vec![Color32::BLACK; len];
+        for i in 0..max_iterations {
+            palette[i as usize] = self.to_color32(i, max_iterations);
+        }
+        // max_iterations index → in-set → BLACK (already default)
+        palette
+    }
+
     /// Converts the number of iterations to a color based on the color scheme.
     #[inline(always)]
     #[must_use]
