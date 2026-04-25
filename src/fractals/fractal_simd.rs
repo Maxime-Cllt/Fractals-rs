@@ -25,6 +25,7 @@ use wide::{f32x4, f64x2};
 pub fn mandelbrot_simd_f32(cx: &[f32; 4], cy: &[f32; 4], max_iteration: u16) -> [u16; 4] {
     let mut iterations = [0u16; 4];
     let mut active_mask = [true; 4];
+    let mut active_count = 4u32;
 
     // Early exit checks for each pixel
     for i in 0..4 {
@@ -33,16 +34,18 @@ pub fn mandelbrot_simd_f32(cx: &[f32; 4], cy: &[f32; 4], max_iteration: u16) -> 
         if q * (q + x_offset) < 0.25 * cy[i] * cy[i] {
             iterations[i] = max_iteration;
             active_mask[i] = false;
+            active_count -= 1;
             continue;
         }
         let x_plus = cx[i] + 1.0;
         if x_plus * x_plus + cy[i] * cy[i] < 0.0625 {
             iterations[i] = max_iteration;
             active_mask[i] = false;
+            active_count -= 1;
         }
     }
 
-    if !active_mask.iter().any(|&b| b) {
+    if active_count == 0 {
         return iterations;
     }
 
@@ -54,7 +57,7 @@ pub fn mandelbrot_simd_f32(cx: &[f32; 4], cy: &[f32; 4], max_iteration: u16) -> 
     let two = f32x4::splat(2.0);
 
     for iter in 0..max_iteration {
-        if !active_mask.iter().any(|&b| b) {
+        if active_count == 0 {
             break;
         }
 
@@ -68,6 +71,7 @@ pub fn mandelbrot_simd_f32(cx: &[f32; 4], cy: &[f32; 4], max_iteration: u16) -> 
             if active_mask[i] && mag_arr[i] > 4.0 {
                 iterations[i] = iter;
                 active_mask[i] = false;
+                active_count -= 1;
             }
         }
 
@@ -94,6 +98,7 @@ pub fn mandelbrot_simd_f32(cx: &[f32; 4], cy: &[f32; 4], max_iteration: u16) -> 
 pub fn mandelbrot_simd_f64(cx: &[f64; 2], cy: &[f64; 2], max_iteration: u16) -> [u16; 2] {
     let mut iterations = [0u16; 2];
     let mut active_mask = [true; 2];
+    let mut active_count = 2u32;
 
     // Early exit checks
     for i in 0..2 {
@@ -102,16 +107,18 @@ pub fn mandelbrot_simd_f64(cx: &[f64; 2], cy: &[f64; 2], max_iteration: u16) -> 
         if q * (q + x_offset) < 0.25 * cy[i] * cy[i] {
             iterations[i] = max_iteration;
             active_mask[i] = false;
+            active_count -= 1;
             continue;
         }
         let x_plus = cx[i] + 1.0;
         if x_plus * x_plus + cy[i] * cy[i] < 0.0625 {
             iterations[i] = max_iteration;
             active_mask[i] = false;
+            active_count -= 1;
         }
     }
 
-    if !active_mask.iter().any(|&b| b) {
+    if active_count == 0 {
         return iterations;
     }
 
@@ -123,7 +130,7 @@ pub fn mandelbrot_simd_f64(cx: &[f64; 2], cy: &[f64; 2], max_iteration: u16) -> 
     let two = f64x2::splat(2.0);
 
     for iter in 0..max_iteration {
-        if !active_mask.iter().any(|&b| b) {
+        if active_count == 0 {
             break;
         }
 
@@ -136,6 +143,7 @@ pub fn mandelbrot_simd_f64(cx: &[f64; 2], cy: &[f64; 2], max_iteration: u16) -> 
             if active_mask[i] && mag_arr[i] > 4.0 {
                 iterations[i] = iter;
                 active_mask[i] = false;
+                active_count -= 1;
             }
         }
 
@@ -175,11 +183,12 @@ pub fn julia_simd_f32(
 
     let mut iterations = [0u16; 4];
     let mut active_mask = [true; 4];
+    let mut active_count = 4u32;
 
     let two = f32x4::splat(2.0);
 
     for iter in 0..max_iteration {
-        if !active_mask.iter().any(|&b| b) {
+        if active_count == 0 {
             break;
         }
 
@@ -192,6 +201,7 @@ pub fn julia_simd_f32(
             if active_mask[i] && mag_arr[i] > 4.0 {
                 iterations[i] = iter;
                 active_mask[i] = false;
+                active_count -= 1;
             }
         }
 
@@ -226,11 +236,12 @@ pub fn julia_simd_f64(
 
     let mut iterations = [0u16; 2];
     let mut active_mask = [true; 2];
+    let mut active_count = 2u32;
 
     let two = f64x2::splat(2.0);
 
     for iter in 0..max_iteration {
-        if !active_mask.iter().any(|&b| b) {
+        if active_count == 0 {
             break;
         }
 
@@ -243,6 +254,7 @@ pub fn julia_simd_f64(
             if active_mask[i] && mag_arr[i] > 4.0 {
                 iterations[i] = iter;
                 active_mask[i] = false;
+                active_count -= 1;
             }
         }
 
@@ -274,11 +286,12 @@ pub fn burning_ship_simd_f32(cx: &[f32; 4], cy: &[f32; 4], max_iteration: u16) -
     let mut y = f32x4::ZERO;
     let mut iterations = [0u16; 4];
     let mut active_mask = [true; 4];
+    let mut active_count = 4u32;
 
     let two = f32x4::splat(2.0);
 
     for iter in 0..max_iteration {
-        if !active_mask.iter().any(|&b| b) {
+        if active_count == 0 {
             break;
         }
 
@@ -291,6 +304,7 @@ pub fn burning_ship_simd_f32(cx: &[f32; 4], cy: &[f32; 4], max_iteration: u16) -
             if active_mask[i] && mag_arr[i] > 4.0 {
                 iterations[i] = iter;
                 active_mask[i] = false;
+                active_count -= 1;
             }
         }
 
@@ -319,11 +333,12 @@ pub fn burning_ship_simd_f64(cx: &[f64; 2], cy: &[f64; 2], max_iteration: u16) -
     let mut y = f64x2::ZERO;
     let mut iterations = [0u16; 2];
     let mut active_mask = [true; 2];
+    let mut active_count = 2u32;
 
     let two = f64x2::splat(2.0);
 
     for iter in 0..max_iteration {
-        if !active_mask.iter().any(|&b| b) {
+        if active_count == 0 {
             break;
         }
 
@@ -336,6 +351,7 @@ pub fn burning_ship_simd_f64(cx: &[f64; 2], cy: &[f64; 2], max_iteration: u16) -
             if active_mask[i] && mag_arr[i] > 4.0 {
                 iterations[i] = iter;
                 active_mask[i] = false;
+                active_count -= 1;
             }
         }
 
@@ -367,11 +383,12 @@ pub fn tricorn_simd_f32(cx: &[f32; 4], cy: &[f32; 4], max_iteration: u16) -> [u1
     let mut y = f32x4::ZERO;
     let mut iterations = [0u16; 4];
     let mut active_mask = [true; 4];
+    let mut active_count = 4u32;
 
     let neg_two = f32x4::splat(-2.0);
 
     for iter in 0..max_iteration {
-        if !active_mask.iter().any(|&b| b) {
+        if active_count == 0 {
             break;
         }
 
@@ -384,6 +401,7 @@ pub fn tricorn_simd_f32(cx: &[f32; 4], cy: &[f32; 4], max_iteration: u16) -> [u1
             if active_mask[i] && mag_arr[i] > 4.0 {
                 iterations[i] = iter;
                 active_mask[i] = false;
+                active_count -= 1;
             }
         }
 
@@ -412,11 +430,12 @@ pub fn tricorn_simd_f64(cx: &[f64; 2], cy: &[f64; 2], max_iteration: u16) -> [u1
     let mut y = f64x2::ZERO;
     let mut iterations = [0u16; 2];
     let mut active_mask = [true; 2];
+    let mut active_count = 2u32;
 
     let neg_two = f64x2::splat(-2.0);
 
     for iter in 0..max_iteration {
-        if !active_mask.iter().any(|&b| b) {
+        if active_count == 0 {
             break;
         }
 
@@ -429,6 +448,7 @@ pub fn tricorn_simd_f64(cx: &[f64; 2], cy: &[f64; 2], max_iteration: u16) -> [u1
             if active_mask[i] && mag_arr[i] > 4.0 {
                 iterations[i] = iter;
                 active_mask[i] = false;
+                active_count -= 1;
             }
         }
 

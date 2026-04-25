@@ -63,6 +63,9 @@ impl FractalApp {
         let (x_scale, y_scale, x_min, y_min) = self.compute_scale();
         let total_pixels = width * height;
 
+        // Pre-compute color palette once — avoids heavy trig per pixel
+        let palette = self.color_scheme.build_palette(self.max_iterations);
+
         // Pre-allocate RGBA buffer for direct writing
         let mut rgba_buffer = vec![0u8; total_pixels * 4];
 
@@ -110,14 +113,11 @@ impl FractalApp {
                                 }
                             };
 
-                            // Write 4 pixels
+                            // Write 4 pixels via palette lookup
                             for (i, &iter) in iterations.iter().enumerate() {
-                                let color = self.color_scheme.to_color32(iter, self.max_iterations);
                                 let pixel_idx = (x + i) * 4;
-                                row_chunk[pixel_idx] = color.r();
-                                row_chunk[pixel_idx + 1] = color.g();
-                                row_chunk[pixel_idx + 2] = color.b();
-                                row_chunk[pixel_idx + 3] = color.a();
+                                row_chunk[pixel_idx..pixel_idx + 4]
+                                    .copy_from_slice(&palette[iter as usize]);
                             }
 
                             x += 4;
@@ -133,12 +133,9 @@ impl FractalApp {
                                 &self.julia_c,
                                 self.precision_mode,
                             );
-                            let color = self.color_scheme.to_color32(iterations, self.max_iterations);
                             let pixel_idx = x * 4;
-                            row_chunk[pixel_idx] = color.r();
-                            row_chunk[pixel_idx + 1] = color.g();
-                            row_chunk[pixel_idx + 2] = color.b();
-                            row_chunk[pixel_idx + 3] = color.a();
+                            row_chunk[pixel_idx..pixel_idx + 4]
+                                .copy_from_slice(&palette[iterations as usize]);
                             x += 1;
                         }
                     }
@@ -175,14 +172,11 @@ impl FractalApp {
                                 }
                             };
 
-                            // Write 2 pixels
+                            // Write 2 pixels via palette lookup
                             for (i, &iter) in iterations.iter().enumerate() {
-                                let color = self.color_scheme.to_color32(iter, self.max_iterations);
                                 let pixel_idx = (x + i) * 4;
-                                row_chunk[pixel_idx] = color.r();
-                                row_chunk[pixel_idx + 1] = color.g();
-                                row_chunk[pixel_idx + 2] = color.b();
-                                row_chunk[pixel_idx + 3] = color.a();
+                                row_chunk[pixel_idx..pixel_idx + 4]
+                                    .copy_from_slice(&palette[iter as usize]);
                             }
 
                             x += 2;
@@ -198,12 +192,9 @@ impl FractalApp {
                                 &self.julia_c,
                                 self.precision_mode,
                             );
-                            let color = self.color_scheme.to_color32(iterations, self.max_iterations);
                             let pixel_idx = x * 4;
-                            row_chunk[pixel_idx] = color.r();
-                            row_chunk[pixel_idx + 1] = color.g();
-                            row_chunk[pixel_idx + 2] = color.b();
-                            row_chunk[pixel_idx + 3] = color.a();
+                            row_chunk[pixel_idx..pixel_idx + 4]
+                                .copy_from_slice(&palette[iterations as usize]);
                             x += 1;
                         }
                     }
@@ -220,12 +211,9 @@ impl FractalApp {
                                 &self.julia_c,
                                 self.precision_mode,
                             );
-                            let color = self.color_scheme.to_color32(iterations, self.max_iterations);
                             let pixel_idx = x * 4;
-                            row_chunk[pixel_idx] = color.r();
-                            row_chunk[pixel_idx + 1] = color.g();
-                            row_chunk[pixel_idx + 2] = color.b();
-                            row_chunk[pixel_idx + 3] = color.a();
+                            row_chunk[pixel_idx..pixel_idx + 4]
+                                .copy_from_slice(&palette[iterations as usize]);
                         }
                     }
                 }
