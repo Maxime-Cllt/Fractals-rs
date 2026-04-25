@@ -166,15 +166,15 @@ impl ColorScheme {
 
     /// Builds a pre-computed color palette for fast per-pixel lookup.
     /// Avoids calling `to_color32` (with heavy trig) once per pixel.
+    /// Returns `Vec<Color32>` so pixels can be written directly without byte unpacking.
     #[must_use]
-    pub fn build_palette(&self, max_iterations: u16) -> Vec<[u8; 4]> {
+    pub fn build_palette(&self, max_iterations: u16) -> Vec<Color32> {
         let len = max_iterations as usize + 1;
-        let mut palette = vec![[0u8, 0u8, 0u8, 255u8]; len];
+        let mut palette = vec![Color32::BLACK; len];
         for i in 0..max_iterations {
-            let c = self.to_color32(i, max_iterations);
-            palette[i as usize] = [c.r(), c.g(), c.b(), c.a()];
+            palette[i as usize] = self.to_color32(i, max_iterations);
         }
-        // max_iterations index → in-set → black (already default)
+        // max_iterations index → in-set → BLACK (already default)
         palette
     }
 
