@@ -6,6 +6,112 @@ use crate::utils::point::Point;
 use egui::{Color32, Vec2};
 use rayon::prelude::*;
 
+/// Render all rows in parallel, dispatching to a single SIMD kernel.
+/// The kernel closure is monomorphized per call site, allowing full inlining
+/// of the SIMD body and eliminating the per-chunk fractal-type branch.
+#[inline(always)]
+fn render_image_simd_f32<K>(
+    pixels: &mut [Color32],
+    width: usize,
+    x_min_f32: f32,
+    y_min: f64,
+    x_scale_f32: f32,
+    y_scale: f64,
+    max_iterations: u16,
+    palette: &[Color32],
+    kernel: K,
+) where
+    K: Fn(&[f32; 4], &[f32; 4], u16) -> [u16; 4] + Sync,
+{
+    // Lane offsets pre-computed once for the whole image — flat dependency chain
+    // for each chunk's cx_arr (4 independent adds vs 3 sequential adds).
+    let dx = x_scale_f32;
+    let dx2 = dx + dx;
+    let dx3 = dx2 + dx;
+    let dx4 = dx2 + dx2;
+
+    pixels
+        .par_chunks_mut(width)
+        .enumerate()
+        .for_each(|(y, row)| {
+            let cy_f32 = (y as f64).mul_add(y_scale, y_min) as f32;
+            let cy_arr = [cy_f32; 4];
+
+            let mut cx_base = x_min_f32;
+            let mut x = 0;
+
+            // SIMD body: 4 pixels per call
+            while x + 4 <= width {
+                let cx_arr = [cx_base, cx_base + dx, cx_base + dx2, cx_base + dx3];
+                let iters = kernel(&cx_arr, &cy_arr, max_iterations);
+                row[x] = palette[iters[0] as usize];
+                row[x + 1] = palette[iters[1] as usize];
+                row[x + 2] = palette[iters[2] as usize];
+                row[x + 3] = palette[iters[3] as usize];
+                cx_base += dx4;
+                x += 4;
+            }
+
+            // Tail: fewer than 4 pixels — still go through the same kernel so we
+            // don't pay a separate scalar code path. Lanes past the row width
+            // get duplicate inputs; we only consume `iters[0]`.
+            while x < width {
+                let cx_arr = [cx_base; 4];
+                let iters = kernel(&cx_arr, &cy_arr, max_iterations);
+                row[x] = palette[iters[0] as usize];
+                cx_base += dx;
+                x += 1;
+            }
+        });
+}
+
+/// Render all rows in parallel for f64 precision.
+#[inline(always)]
+fn render_image_simd_f64<K>(
+    pixels: &mut [Color32],
+    width: usize,
+    x_min: f64,
+    y_min: f64,
+    x_scale: f64,
+    y_scale: f64,
+    max_iterations: u16,
+    palette: &[Color32],
+    kernel: K,
+) where
+    K: Fn(&[f64; 2], &[f64; 2], u16) -> [u16; 2] + Sync,
+{
+    let dx = x_scale;
+    let dx2 = dx + dx;
+
+    pixels
+        .par_chunks_mut(width)
+        .enumerate()
+        .for_each(|(y, row)| {
+            let cy = (y as f64).mul_add(y_scale, y_min);
+            let cy_arr = [cy; 2];
+
+            let mut cx_base = x_min;
+            let mut x = 0;
+
+            while x + 2 <= width {
+                let cx_arr = [cx_base, cx_base + dx];
+                let iters = kernel(&cx_arr, &cy_arr, max_iterations);
+                row[x] = palette[iters[0] as usize];
+                row[x + 1] = palette[iters[1] as usize];
+                cx_base += dx2;
+                x += 2;
+            }
+
+            while x < width {
+                let cx_arr = [cx_base; 2];
+                let iters = kernel(&cx_arr, &cy_arr, max_iterations);
+                row[x] = palette[iters[0] as usize];
+                cx_base += dx;
+                x += 1;
+            }
+        });
+}
+
 /// The main application state for the fractal viewer.
 pub struct FractalApp {
     pub fractal_type: FractalType,
@@ -70,156 +176,89 @@ impl FractalApp {
         // the from_rgba_unmultiplied copy at the end (saves ~1 full image copy)
         let mut pixels = vec![Color32::BLACK; total_pixels];
 
-        // Cache hot fields as local copies — avoids pointer dereferences through `self`
-        // inside the parallel inner loop (120K+ iterations for a typical render)
-        let x_scale_f32 = x_scale as f32;
-        let x_min_f32 = x_min as f32;
         let max_iterations = self.max_iterations;
-        let fractal_type = self.fractal_type;
-        let precision_mode = self.precision_mode;
         let julia_cx_f32 = self.julia_c.x as f32;
         let julia_cy_f32 = self.julia_c.y as f32;
         let julia_cx = self.julia_c.x;
         let julia_cy = self.julia_c.y;
-        let julia_c = &self.julia_c;
 
-        // Row-based parallelization with SIMD optimization
-        pixels
-            .par_chunks_mut(width)
-            .enumerate()
-            .for_each(|(y, row)| {
-                let cy = (y as f64).mul_add(y_scale, y_min);
-
-                match precision_mode {
-                    PrecisionMode::Fast => {
-                        // Incremental x-coordinate in f32 — avoids 4 f64 mul_add + cast per group
-                        let cy_f32 = cy as f32;
-                        let dx = x_scale_f32;
-                        let dx4 = dx * 4.0;
-                        let mut cx_base = x_min_f32;
-                        let mut x = 0;
-
-                        // Process in chunks of 4 with SIMD
-                        while x + 4 <= width {
-                            let cx_arr = [cx_base, cx_base + dx, cx_base + dx + dx, cx_base + dx + dx + dx];
-                            let cy_arr = [cy_f32; 4];
-
-                            let iterations = match fractal_type {
-                                FractalType::Mandelbrot => {
-                                    fractal_simd::mandelbrot_simd_f32(&cx_arr, &cy_arr, max_iterations)
-                                }
-                                FractalType::Julia => {
-                                    fractal_simd::julia_simd_f32(
-                                        &cx_arr,
-                                        &cy_arr,
-                                        julia_cx_f32,
-                                        julia_cy_f32,
-                                        max_iterations,
-                                    )
-                                }
-                                FractalType::BurningShip => {
-                                    fractal_simd::burning_ship_simd_f32(&cx_arr, &cy_arr, max_iterations)
-                                }
-                                FractalType::Tricorn => {
-                                    fractal_simd::tricorn_simd_f32(&cx_arr, &cy_arr, max_iterations)
-                                }
-                            };
-
-                            // Write 4 Color32 directly — no byte unpacking
-                            row[x]     = palette[iterations[0] as usize];
-                            row[x + 1] = palette[iterations[1] as usize];
-                            row[x + 2] = palette[iterations[2] as usize];
-                            row[x + 3] = palette[iterations[3] as usize];
-
-                            cx_base += dx4;
-                            x += 4;
-                        }
-
-                        // Handle remaining pixels (< 4)
-                        while x < width {
-                            let iterations = fractal_type.iterations(
-                                cx_base as f64,
-                                cy,
-                                max_iterations,
-                                &julia_c,
-                                precision_mode,
-                            );
-                            row[x] = palette[iterations as usize];
-                            cx_base += dx;
-                            x += 1;
-                        }
-                    }
-                    PrecisionMode::High => {
-                        // Incremental x-coordinate in f64
-                        let dx = x_scale;
-                        let dx2 = dx * 2.0;
-                        let mut cx_base = x_min;
-                        let mut x = 0;
-
-                        // Process in chunks of 2 with SIMD
-                        while x + 2 <= width {
-                            let cx_arr = [cx_base, cx_base + dx];
-                            let cy_arr = [cy; 2];
-
-                            let iterations = match fractal_type {
-                                FractalType::Mandelbrot => {
-                                    fractal_simd::mandelbrot_simd_f64(&cx_arr, &cy_arr, max_iterations)
-                                }
-                                FractalType::Julia => {
-                                    fractal_simd::julia_simd_f64(
-                                        &cx_arr,
-                                        &cy_arr,
-                                        julia_cx,
-                                        julia_cy,
-                                        max_iterations,
-                                    )
-                                }
-                                FractalType::BurningShip => {
-                                    fractal_simd::burning_ship_simd_f64(&cx_arr, &cy_arr, max_iterations)
-                                }
-                                FractalType::Tricorn => {
-                                    fractal_simd::tricorn_simd_f64(&cx_arr, &cy_arr, max_iterations)
-                                }
-                            };
-
-                            row[x]     = palette[iterations[0] as usize];
-                            row[x + 1] = palette[iterations[1] as usize];
-
-                            cx_base += dx2;
-                            x += 2;
-                        }
-
-                        // Handle remaining pixel
-                        while x < width {
-                            let iterations = fractal_type.iterations(
-                                cx_base,
-                                cy,
-                                max_iterations,
-                                &julia_c,
-                                precision_mode,
-                            );
-                            row[x] = palette[iterations as usize];
-                            cx_base += dx;
-                            x += 1;
-                        }
-                    }
-                    #[cfg(feature = "f128")]
-                    PrecisionMode::UltraHigh => {
+        // Dispatch once per frame, not per chunk-of-4 pixels: this lets each
+        // (fractal_type, precision_mode) combo be fully monomorphized so the
+        // SIMD kernel inlines into the row loop without any per-chunk branch.
+        match self.precision_mode {
+            PrecisionMode::Fast => {
+                let x_scale_f32 = x_scale as f32;
+                let x_min_f32 = x_min as f32;
+                match self.fractal_type {
+                    FractalType::Mandelbrot => render_image_simd_f32(
+                        &mut pixels, width, x_min_f32, y_min, x_scale_f32, y_scale,
+                        max_iterations, &palette,
+                        |cx, cy, mi| fractal_simd::mandelbrot_simd_f32(cx, cy, mi),
+                    ),
+                    FractalType::Julia => render_image_simd_f32(
+                        &mut pixels, width, x_min_f32, y_min, x_scale_f32, y_scale,
+                        max_iterations, &palette,
+                        |cx, cy, mi| fractal_simd::julia_simd_f32(cx, cy, julia_cx_f32, julia_cy_f32, mi),
+                    ),
+                    FractalType::BurningShip => render_image_simd_f32(
+                        &mut pixels, width, x_min_f32, y_min, x_scale_f32, y_scale,
+                        max_iterations, &palette,
+                        |cx, cy, mi| fractal_simd::burning_ship_simd_f32(cx, cy, mi),
+                    ),
+                    FractalType::Tricorn => render_image_simd_f32(
+                        &mut pixels, width, x_min_f32, y_min, x_scale_f32, y_scale,
+                        max_iterations, &palette,
+                        |cx, cy, mi| fractal_simd::tricorn_simd_f32(cx, cy, mi),
+                    ),
+                }
+            }
+            PrecisionMode::High => match self.fractal_type {
+                FractalType::Mandelbrot => render_image_simd_f64(
+                    &mut pixels, width, x_min, y_min, x_scale, y_scale,
+                    max_iterations, &palette,
+                    |cx, cy, mi| fractal_simd::mandelbrot_simd_f64(cx, cy, mi),
+                ),
+                FractalType::Julia => render_image_simd_f64(
+                    &mut pixels, width, x_min, y_min, x_scale, y_scale,
+                    max_iterations, &palette,
+                    |cx, cy, mi| fractal_simd::julia_simd_f64(cx, cy, julia_cx, julia_cy, mi),
+                ),
+                FractalType::BurningShip => render_image_simd_f64(
+                    &mut pixels, width, x_min, y_min, x_scale, y_scale,
+                    max_iterations, &palette,
+                    |cx, cy, mi| fractal_simd::burning_ship_simd_f64(cx, cy, mi),
+                ),
+                FractalType::Tricorn => render_image_simd_f64(
+                    &mut pixels, width, x_min, y_min, x_scale, y_scale,
+                    max_iterations, &palette,
+                    |cx, cy, mi| fractal_simd::tricorn_simd_f64(cx, cy, mi),
+                ),
+            },
+            #[cfg(feature = "f128")]
+            PrecisionMode::UltraHigh => {
+                let fractal_type = self.fractal_type;
+                let precision_mode = self.precision_mode;
+                let julia_c = &self.julia_c;
+                pixels
+                    .par_chunks_mut(width)
+                    .enumerate()
+                    .for_each(|(y, row)| {
+                        let cy = (y as f64).mul_add(y_scale, y_min);
                         let mut cx = x_min;
                         for pixel in row.iter_mut() {
                             let iterations = fractal_type.iterations(
                                 cx,
                                 cy,
                                 max_iterations,
-                                &julia_c,
+                                julia_c,
                                 precision_mode,
                             );
                             *pixel = palette[iterations as usize];
                             cx += x_scale;
                         }
-                    }
-                }
-            });
+                    });
+            }
+        }
 
         // Construct ColorImage directly from Vec<Color32> — no extra allocation/copy
         egui::ColorImage {
